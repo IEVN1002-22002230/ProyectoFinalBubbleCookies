@@ -1,0 +1,177 @@
+
+<div class="space-y-6 text-[#805D49]">
+
+  <!-- ENCABEZADO -->
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-[#B99784]">
+        HECHO CON AMOR, GESTIONADO CON CUIDADO
+      </p>
+      <h2 class="mt-2 text-2xl font-bold">Producto terminado.</h2>
+      <p class="mt-1 text-sm text-[#B99784]">
+        Todo lo que necesitas para seguir horneando felicidad.
+      </p>
+    </div>
+
+    <button type="button" (click)="load()"
+      class="rounded-lg border border-[#EADBD0] bg-white px-4 py-2.5 text-sm font-medium hover:bg-[#F7EBE3]">
+      Actualizar datos
+    </button>
+  </div>
+
+  <!-- MENSAJE -->
+  <div *ngIf="message"
+    class="rounded-lg border border-[#BBDFF5] bg-[#EFF8FE] p-4 text-sm">
+    {{message}}
+  </div>
+
+  <!-- AJUSTAR INVENTARIO -->
+  <section *ngIf="selected"
+    class="rounded-xl border border-[#EADBD0] bg-white p-6 shadow-sm">
+
+    <div class="mb-5 flex items-center justify-between">
+      <h3 class="text-lg font-semibold">
+        Ajustar inventario: {{selected.nombre}}
+      </h3>
+
+      <button type="button" (click)="selected=null"
+        class="rounded-lg bg-[#F7EBE3] px-4 py-2 text-sm">
+        Cerrar
+      </button>
+    </div>
+
+    <form (ngSubmit)="guardar()" class="grid gap-4 md:grid-cols-3">
+
+      <div>
+        <label class="mb-2 block text-sm font-medium">Existencia actualizada</label>
+        <input type="number" min="0" step="1" name="existencia"
+          [(ngModel)]="form.existencia" required
+          class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm">
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium">Stock mínimo</label>
+        <input type="number" min="0" step="1" name="minimo"
+          [(ngModel)]="form.minimo" required
+          class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm">
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium">Observaciones</label>
+        <input name="observaciones" [(ngModel)]="form.observaciones"
+          class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm">
+      </div>
+
+      <div class="md:col-span-3">
+        <button type="submit"
+          class="rounded-lg bg-[#805D49] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#6D4D3B]">
+          Guardar ajuste
+        </button>
+      </div>
+
+    </form>
+  </section>
+
+  <!-- INVENTARIO -->
+  <section class="overflow-hidden rounded-xl border border-[#EADBD0] bg-white shadow-sm">
+
+    <div class="flex items-center justify-between border-b border-[#EADBD0] p-5">
+      <div>
+        <h3 class="text-lg font-semibold">Listas para enamorar</h3>
+        <p class="text-xs text-[#B99784]">Inventario de producto terminado</p>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-[#A88C7B]">
+
+        <thead class="bg-[#F7EBE3] text-xs uppercase text-[#805D49]">
+          <tr>
+            <th class="px-6 py-4">Producto</th>
+            <th class="px-6 py-4">Precio unitario</th>
+            <th class="px-6 py-4">Existencia</th>
+            <th class="px-6 py-4">Valor de inventario</th>
+            <th class="px-6 py-4">Estado</th>
+            <th class="px-6 py-4">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let p of products"
+            class="border-b border-[#F1E6DE] hover:bg-[#FFFCFA]">
+
+            <!-- IMAGEN -->
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+
+                <img
+                  [src]="imagenProducto(p)"
+                  [alt]="p.nombre"
+                  (error)="imagenError($event)"
+                  class="h-11 w-11 rounded-full object-cover">
+
+                <span class="whitespace-nowrap font-semibold text-[#805D49]">
+                  {{p.nombre}}
+                </span>
+              </div>
+            </td>
+
+            <!-- PRECIO -->
+            <td class="px-6 py-4">
+              {{(p.precio || 0) | currency:'MXN'}}
+            </td>
+
+            <!-- EXISTENCIA -->
+            <td class="px-6 py-4">
+              {{p.existencia}} unidades
+            </td>
+
+            <!-- VALOR -->
+            <td class="px-6 py-4">
+              {{(p.existencia * (p.precio || 0)) | currency:'MXN'}}
+            </td>
+
+            <!-- ESTADO -->
+            <td class="px-6 py-4">
+              <span class="rounded-lg px-3 py-1 text-xs font-medium"
+                [ngClass]="p.existencia<=p.minimo
+                  ? 'bg-[#FFF0B8] text-[#805D49]'
+                  : 'bg-[#EAF4E8] text-[#5B8A65]'">
+                {{p.existencia<=p.minimo ? 'Stock bajo' : 'Disponible'}}
+              </span>
+            </td>
+
+            <!-- ACCIONES -->
+            <td class="px-6 py-4">
+              <div class="flex gap-3">
+                <button type="button" (click)="editar(p)"
+                  class="font-medium text-[#6DA9CF] hover:underline">
+                  Ajustar
+                </button>
+
+                <button type="button" (click)="retirar(p)"
+                  class="font-medium text-[#C58B98] hover:underline">
+                  Retirar
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="products.length===0">
+            <td colspan="6" class="px-6 py-6 text-center">
+              No hay productos registrados.
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PIE DE PAGINA -->
+  <div class="flex flex-wrap justify-between gap-2 text-xs text-[#B99784]">
+    <span>© 2026 BubbleCookies. Hecho con amor y un poquito de azúcar.</span>
+    <span>✦ Todo listo para crear cosas deliciosas.</span>
+  </div>
+
+</div>

@@ -1,0 +1,53 @@
+<div class="page-heading">
+    <div>
+        <h2>Clientes</h2>
+        <p>Personas que endulzan nuestro día.</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+        <button type="button" class="inline-flex items-center gap-2 rounded-xl border border-[#ead9cc] bg-white px-4 py-2.5 text-sm font-semibold text-[#8a6348] transition hover:bg-[#fff8f1]" (click)="exportarCSV()">↓ Exportar CSV</button>
+        <button class="button soft" (click)="load()">Actualizar datos</button>
+        <button class="button primary" (click)="nuevo()">＋ Nuevo cliente</button>
+    </div>
+</div>
+<p class="notice" *ngIf="message">{{message}}</p>
+<section class="panel" *ngIf="showForm">
+    <div class="panel-header">
+        <h2>{{form.id_cliente?'Editar cliente':'Registrar cliente'}}</h2><button class="button soft"
+            (click)="showForm=false">Cerrar</button>
+    </div>
+    <form class="field-grid" (ngSubmit)="guardar()"><label>Nombre<input name="nombre" [(ngModel)]="form.nombre"
+                required></label><label>Apellidos<input name="apellidos"
+                [(ngModel)]="form.apellidos"></label><label>Correo<input name="correo" type="email"
+                [(ngModel)]="form.correo"></label><label>Teléfono<input name="telefono"
+                [(ngModel)]="form.telefono"></label><label>Ciudad<input name="ciudad" [(ngModel)]="form.ciudad"></label>
+        <div><button class="button primary">Guardar cliente</button></div>
+    </form>
+</section>
+<section class="panel">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Ciudad</th>
+                    <th>Registro</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let x of clients">
+                    <td class="strong">{{x.nombre}} {{x.apellidos}}</td>
+                    <td>{{x.correo}}</td>
+                    <td>{{x.telefono}}</td>
+                    <td>{{x.ciudad}}</td>
+                    <td>{{x.creado_en|date:'mediumDate'}}</td>
+                    <td><button class="text-button" (click)="editar(x)">Editar</button> <button class="text-button"
+                            (click)="eliminar(x)">Eliminar</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <p *ngIf="clients.length===0">No hay clientes registrados.</p>
+</section>

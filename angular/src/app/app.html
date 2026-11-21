@@ -1,0 +1,73 @@
+<ng-container *ngIf="isAuth; else appFrame"><router-outlet></router-outlet></ng-container>
+<ng-template #appFrame>
+  <div *ngIf="isCustomer; else adminFrame"
+    class="customer-layout flex min-h-screen flex-col bg-stone-50 text-stone-700">
+    <header class="customer-header">
+      <a routerLink="/catalogo"><img class="brand-logo" src="/assets/bubblecookies/bubblecookies-logo.png"
+          alt="BubbleCookies"></a>
+      <nav class="flex flex-wrap items-center gap-4"><a routerLink="/catalogo" routerLinkActive="active">Tienda</a><a routerLink="/carrito"
+          routerLinkActive="active">Mi carrito <span class="badge blue">{{cartCount}}</span></a><a *ngIf="customer" routerLink="/mis-pedidos" routerLinkActive="active">Mis pedidos</a></nav>
+      <div class="flex items-center gap-3" *ngIf="customer; else customerLogin"><span class="hidden text-sm text-stone-600 sm:inline">Hola, {{customer.nombre}}</span><button type="button" (click)="logoutCustomer()" class="text-sm font-medium text-stone-600 hover:text-rose-600">Salir</button></div>
+      <ng-template #customerLogin><a routerLink="/login-clientes" class="button soft">Mi cuenta</a></ng-template>
+    </header>
+    <main class="customer-main w-full flex-none overflow-visible"><router-outlet></router-outlet></main>
+    <footer class="customer-footer">
+      <a class="footer-brand" routerLink="/catalogo"><img class="brand-logo"
+          src="/assets/bubblecookies/bubblecookies-logo.png" alt="BubbleCookies"></a>
+      <span>Pequeñas galletas. Grandes momentos.</span>
+      <a class="footer-admin" [routerLink]="adminDestination">Administración <span aria-hidden="true">→</span></a>
+      <small>© 2025 BubbleCookies · Hecho con amor.</small>
+    </footer>
+  </div>
+  <ng-template #adminFrame>
+    <div class="admin-layout min-h-screen">
+      <aside class="admin-sidebar">
+        <img class="brand-logo" src="/assets/bubblecookies/bubblecookies-logo.png" alt="BubbleCookies">
+        <div class="workspace"><span class="workspace-icon">✿</span><span>Mi pastelería<small>Panel de
+              administración</small></span></div>
+        <nav>
+          <div class="nav-group" *ngIf="role==='superadmin'||role==='administrador'">
+            <p>PRINCIPAL</p><a class="nav-item" routerLink="/dashboard" routerLinkActive="active">▦ <span>Dashboard
+                general</span></a>
+          </div>
+          <div class="nav-group" *ngIf="role==='marketing'||role==='superadmin'||role==='administrador'">
+            <p>MARKETING</p><a class="nav-item" routerLink="/marketing-panel" routerLinkActive="active">◷ <span>Panel de
+                marketing</span></a><a class="nav-item" routerLink="/analitica-marketing" routerLinkActive="active">◷
+              <span>Campañas y analítica</span></a>
+          </div>
+          <div class="nav-group" *ngIf="role==='cocinero'">
+            <p>COCINA</p><a class="nav-item" routerLink="/cocina" routerLinkActive="active">♨ <span>Panel de
+                cocina</span></a>
+          </div>
+          <div class="nav-group" *ngIf="role!=='marketing'">
+            <p>GESTIÓN DEL NEGOCIO</p><a class="nav-item" routerLink="/materia-prima" routerLinkActive="active">▤
+              <span>Materia prima</span></a><a *ngIf="role==='superadmin'||role==='administrador'" class="nav-item"
+              routerLink="/proveedores-compras" routerLinkActive="active">♧ <span>Proveedores y compras</span></a><a
+              class="nav-item" routerLink="/inventario-terminado" routerLinkActive="active">▣ <span>Producto
+                terminado</span></a><a class="nav-item" routerLink="/productos-recetas" routerLinkActive="active">▧
+              <span>Productos y recetas</span></a><a class="nav-item" routerLink="/produccion"
+              routerLinkActive="active">♨ <span>Producción</span></a>
+          </div>
+          <div class="nav-group" *ngIf="role==='superadmin'||role==='administrador'">
+            <p>VENTAS</p><a class="nav-item" routerLink="/pedidos-ventas" routerLinkActive="active">▱
+              <span>Pedidos</span></a><a class="nav-item" routerLink="/gestion-clientes" routerLinkActive="active">♡
+              <span>Clientes</span></a><a class="nav-item" routerLink="/catalogo" routerLinkActive="active">⌂ <span>Ver
+                tienda</span></a>
+          </div>
+        </nav>
+        <div class="admin-side-bottom">
+          <div class="sweet-card"><strong>Un detalle dulce cada día</strong>
+            <p>Organiza tu producción y comparte momentos especiales con BubbleCookies.</p>
+          </div><button class="nav-item" type="button" (click)="logout()">↪ <span>Cerrar sesión
+              ({{user?.nombre}})</span></button>
+        </div>
+      </aside>
+      <section class="admin-main">
+        <header class="admin-topbar">
+          <h1>{{pageTitle}}</h1><span class="badge blue" *ngIf="role">{{role}}</span>
+        </header>
+        <main class="admin-content"><router-outlet></router-outlet></main>
+      </section>
+    </div>
+  </ng-template>
+</ng-template>

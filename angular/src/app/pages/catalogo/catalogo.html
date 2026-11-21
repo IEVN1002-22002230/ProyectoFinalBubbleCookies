@@ -1,0 +1,113 @@
+<section class="cookie-landing">
+  <div class="landing-copy">
+    <span class="landing-eyebrow"><span class="eyebrow-dot"></span> RECIÉN HORNEADAS, HECHAS CON CARIÑO</span>
+    <h1>Galletas que<br>enamoran en<br>cada <span>mordisco.</span></h1>
+    <p>Pequeños momentos de felicidad, horneados a mano con ingredientes que sí se sienten.</p>
+    <div class="landing-actions">
+      <a class="button primary landing-button" href="#galletas">Descubre tus favoritas <span
+          aria-hidden="true">→</span></a>
+      <a class="story-link" href="#nuestra-historia"><span class="story-play" aria-hidden="true">▶</span> Nuestra
+        historia</a>
+    </div>
+    <div class="landing-note"><span class="note-stars" aria-label="Cinco estrellas">★★★★★</span><span>Un detalle dulce
+        para compartir.</span></div>
+  </div>
+
+  <div class="cookie-art" aria-label="Galletas BubbleCookies recién horneadas">
+    <div class="art-halo"></div>
+    <div class="cookie-orbit orbit-one"></div>
+    <div class="cookie-orbit orbit-two"></div>
+    <div class="cookie-spark spark-one">✧</div>
+    <div class="cookie-spark spark-two">✦</div>
+    <span class="art-sticker">hechas<br>con amor <b>♥</b></span>
+    <img class="hero-cookie hero-cookie-main" src="/assets/bubblecookies/cookies/bubble-choco.png"
+      alt="Galleta de chocolate con chispas">
+    <img class="hero-cookie hero-cookie-fresa" src="/assets/bubblecookies/cookies/double-fresa.png"
+      alt="Galleta de fresa">
+    <img class="hero-cookie hero-cookie-limon" src="/assets/bubblecookies/cookies/lemon-glass.png"
+      alt="Galleta de limón">
+    <span class="art-caption">Un mordisco y ya estás en casa.</span>
+  </div>
+</section>
+
+<section class="collection" id="galletas">
+  <div class="collection-heading">
+    <div><span class="section-kicker">UN ANTOJITO HECHO PARA TI</span>
+      <h2>Tu próxima galleta favorita</h2>
+      <p>Pequeñas galletas. Grandes momentos. Encuentra la tuya.</p>
+    </div><span class="collection-flourish" aria-hidden="true">✳</span>
+  </div>
+  <p class="notice" *ngIf="message">{{message}}</p>
+  <div class="panel" *ngIf="loading">Preparando algo delicioso…</div>
+  <div class="panel" *ngIf="error">
+    <p>{{error}}</p><button class="button primary" (click)="load()">Reintentar</button>
+  </div>
+  <div class="product-grid" *ngIf="!loading && !error">
+    <article class="product-card" *ngFor="let p of products; let i = index" [style.--cookie-color]="cookieColor(i)">
+      <div class="product-image"><span>{{p.etiqueta}}</span><img [src]="p.imagen" [alt]="p.nombre"></div>
+      <div class="product-card-body">
+        <h3>{{p.nombre}}</h3>
+        <p>{{p.descripcion}}</p>
+        <div><strong>{{p.precio|currency:'MXN'}}</strong><button class="button primary" (click)="add(p.id_producto)">＋
+            Añadir</button></div>
+      </div>
+    </article>
+    <p class="panel" *ngIf="products.length===0">Pronto tendremos galletas recién horneadas para ti.</p>
+  </div>
+</section>
+
+<section class="story-carousel" id="nuestra-historia" aria-label="Nuestra historia">
+  <button class="story-arrow story-prev" type="button" aria-label="Historia anterior"
+    (click)="previousStory()">‹</button>
+  <div class="story-photo"><img [src]="stories[storyIndex].image" alt="Galleta BubbleCookies"></div>
+  <div class="story-content"><span class="section-kicker">NUESTRA RECETA FAVORITA: EL CARIÑO</span>
+    <h2>{{stories[storyIndex].title}}</h2>
+    <p>{{stories[storyIndex].first}}</p>
+    <p>{{stories[storyIndex].second}}</p><em>{{stories[storyIndex].sign}}</em>
+  </div>
+  <button class="story-arrow story-next" type="button" aria-label="Historia siguiente" (click)="nextStory()">›</button>
+</section>
+
+<!-- Modal de advertencia por stock insuficiente (Tailwind CSS) -->
+<div *ngIf="stockModalOpen"
+  class="fixed inset-0 z-[100] flex items-center justify-center bg-stone-900/45 px-4 py-6 backdrop-blur-sm"
+  role="presentation" (click)="closeStockModal()">
+  <section
+    class="w-full max-w-md rounded-2xl border border-stone-200 bg-white p-6 shadow-2xl sm:p-8"
+    role="alertdialog" aria-modal="true" aria-labelledby="stock-modal-title"
+    aria-describedby="stock-modal-description" (click)="$event.stopPropagation()">
+    <div class="mb-5 flex items-start justify-between">
+      <div class="flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-amber-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 9v4m0 4h.01M10.3 3.9 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3l-7.5-13.1a2 2 0 0 0-3.4 0Z"/>
+        </svg>
+      </div>
+      <button type="button" (click)="closeStockModal()"
+        class="rounded-lg p-2 text-stone-400 transition hover:bg-stone-100 hover:text-stone-700"
+        aria-label="Cerrar advertencia">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/>
+        </svg>
+      </button>
+    </div>
+    <h2 id="stock-modal-title" class="mb-2 font-display text-xl font-bold text-cookie-brown">
+      {{stockModalTitle}}
+    </h2>
+    <p id="stock-modal-description" class="mb-6 text-sm leading-6 text-stone-600">
+      {{stockModalMessage}}
+    </p>
+    <div class="flex items-center justify-between gap-3 rounded-xl bg-stone-50 px-4 py-3">
+      <span class="text-sm text-stone-500">Existencias disponibles</span>
+      <strong class="text-sm font-bold text-cookie-brown">
+        {{stockAvailable === null ? '—' : stockAvailable}}
+      </strong>
+    </div>
+    <button type="button" (click)="closeStockModal()"
+      class="mt-6 w-full rounded-xl bg-brand-blue px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-blue-dark focus:outline-none focus:ring-4 focus:ring-sky-100">
+      Entendido
+    </button>
+  </section>
+</div>

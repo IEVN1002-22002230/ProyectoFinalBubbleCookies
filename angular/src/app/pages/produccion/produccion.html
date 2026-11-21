@@ -1,0 +1,323 @@
+
+<div class="space-y-6 text-[#805D49]">
+
+  <!-- ENCABEZADO -->
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-[#C69C88]">
+        HECHO CON AMOR, GESTIONADO CON CUIDADO
+      </p>
+
+      <h2 class="mt-2 text-2xl font-bold">
+        Producción.
+      </h2>
+
+      <p class="mt-1 text-sm text-[#A98B79]">
+        Todo lo que necesitas para seguir horneando felicidad.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      (click)="load()"
+      class="rounded-lg border border-[#EADBD0] bg-white px-4 py-2.5 text-sm hover:bg-[#FAF1EA]">
+      ↻ Actualizar datos
+    </button>
+  </div>
+
+  <!-- MENSAJES -->
+  <div
+    *ngIf="message"
+    class="rounded-lg border border-[#BBDFF5] bg-[#EDF7FD] p-4 text-sm">
+    {{ message }}
+  </div>
+
+  <div class="grid gap-5 lg:grid-cols-5">
+
+    <!-- FORMULARIO DE PRODUCCION -->
+    <section
+      class="rounded-xl border border-[#EADBD0] bg-white p-5 shadow-sm lg:col-span-2">
+
+      <h3 class="text-lg font-semibold">
+        Manos a la masa
+      </h3>
+
+      <p class="mb-5 mt-1 text-xs text-[#A98B79]">
+        Todo empieza con una buena receta.
+      </p>
+
+      <form
+        (ngSubmit)="producir()"
+        class="space-y-4">
+
+        <!-- SELECCIONAR PRODUCTO -->
+        <div>
+          <label class="mb-2 block text-sm font-medium">
+            ¿Qué hornearemos hoy?
+          </label>
+
+          <select
+            name="id_producto"
+            [(ngModel)]="form.id_producto"
+            (change)="selectProduct()"
+            class="w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm">
+
+            <option
+              *ngFor="let p of products"
+              [ngValue]="p.id_producto">
+              {{ p.nombre }}
+            </option>
+
+          </select>
+        </div>
+
+        <!-- CANTIDAD DE LOTES -->
+        <div>
+          <label class="mb-2 block text-sm font-medium">
+            Cantidad de lotes
+          </label>
+
+          <input
+            type="number"
+            name="cantidad_lotes"
+            min="1"
+            step="1"
+            required
+            [(ngModel)]="form.cantidad_lotes"
+            class="w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm">
+        </div>
+
+        <!-- VISTA PREVIA DE PRODUCCION -->
+        <div class="flex items-center gap-4 rounded-xl bg-[#FFF8EC] p-4">
+
+          <img
+            *ngIf="productoSeleccionado?.imagen"
+            [src]="productoSeleccionado.imagen"
+            [alt]="productoSeleccionado.nombre"
+            class="h-20 w-20 rounded-full object-cover">
+
+          <div
+            *ngIf="!productoSeleccionado?.imagen"
+            class="flex h-20 w-20 items-center justify-center rounded-full bg-[#FFF0B8] text-3xl">
+            🍪
+          </div>
+
+          <div>
+            <p class="text-2xl font-bold">
+              {{ unidades }} galletas
+            </p>
+
+            <p class="mt-1 text-xs text-[#A98B79]">
+              {{ form.cantidad_lotes }} lote(s)
+            </p>
+
+            <p class="text-xs text-[#A98B79]">
+              {{ productoSeleccionado?.nombre }}
+            </p>
+          </div>
+
+        </div>
+
+        <!-- OBSERVACIONES -->
+        <div>
+          <label class="mb-2 block text-sm font-medium">
+            Observaciones
+          </label>
+
+          <input
+            type="text"
+            name="observaciones"
+            [(ngModel)]="form.observaciones"
+            placeholder="Opcional"
+            class="w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm">
+        </div>
+
+        <!-- BOTON DE PRODUCCION -->
+        <button
+          type="submit"
+          [disabled]="registrando"
+          class="w-full cursor-pointer rounded-lg bg-[#8DC3ED] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#75B1DF] disabled:cursor-not-allowed">
+
+          Iniciar producción
+
+        </button>
+
+        <p class="text-center text-xs text-[#A98B79]">
+          Los ingredientes se descuentan automáticamente del inventario.
+        </p>
+
+      </form>
+    </section>
+
+    <!-- INGREDIENTES NECESARIOS -->
+    <section
+      class="overflow-hidden rounded-xl border border-[#EADBD0] bg-white shadow-sm lg:col-span-3">
+
+      <div class="border-b border-[#EADBD0] p-5">
+        <h3 class="text-lg font-semibold">
+          Ingredientes necesarios
+        </h3>
+
+        <p class="mt-1 text-xs text-[#A98B79]">
+          Cantidades calculadas según los lotes seleccionados.
+        </p>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+
+          <thead class="bg-[#FAF6F2] text-xs text-[#A98B79]">
+            <tr>
+              <th class="px-4 py-3">Ingrediente</th>
+              <th class="px-4 py-3">Consumo</th>
+              <th class="px-4 py-3">Unidad</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr
+              *ngFor="let ing of ingredientesNecesarios"
+              class="border-t border-[#F0E7E0]">
+
+              <td class="px-4 py-3">
+                {{ ing.nombre }}
+              </td>
+
+              <td class="px-4 py-3">
+                {{ ing.consumo }}
+              </td>
+
+              <td class="px-4 py-3">
+                {{ ing.unidad }}
+              </td>
+            </tr>
+
+            <tr *ngIf="ingredientesNecesarios.length === 0">
+              <td
+                colspan="3"
+                class="px-4 py-8 text-center text-[#A98B79]">
+                No hay ingredientes registrados para este producto.
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- HISTORIAL DE PRODUCCION -->
+  <section
+    class="overflow-hidden rounded-xl border border-[#EADBD0] bg-white shadow-sm">
+
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#EADBD0] p-5">
+
+      <div>
+        <h3 class="text-lg font-semibold">
+          Historial de producción
+        </h3>
+
+        <p class="mt-1 text-xs text-[#A98B79]">
+          Aquí aparecen los lotes registrados.
+        </p>
+      </div>
+
+      <span
+        class="rounded-full bg-[#F6D6DF] px-3 py-1 text-xs font-semibold">
+        {{ history.length }} registros
+      </span>
+
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+
+        <thead class="bg-[#FAF6F2] text-xs uppercase text-[#A98B79]">
+          <tr>
+            <th class="px-4 py-3">Lote</th>
+            <th class="px-4 py-3">Producto</th>
+            <th class="px-4 py-3">Lotes</th>
+            <th class="px-4 py-3">Unidades</th>
+            <th class="px-4 py-3">Fecha</th>
+            <th class="px-4 py-3">Estado</th>
+            <th class="px-4 py-3">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr
+            *ngFor="let x of history"
+            class="border-t border-[#F0E7E0] hover:bg-[#FFF9F5]">
+
+            <td class="px-4 py-4 font-semibold">
+              {{ x.codigo_lote }}
+            </td>
+
+            <td class="px-4 py-4">
+              {{ x.producto }}
+            </td>
+
+            <td class="px-4 py-4">
+              {{ x.cantidad_lotes }}
+            </td>
+
+            <td class="px-4 py-4">
+              {{ x.unidades_producidas }}
+            </td>
+
+            <td class="px-4 py-4">
+              {{ x.fecha_produccion | date:'short' }}
+            </td>
+
+            <td class="px-4 py-4">
+              <span
+                [ngClass]="x.estado === 'cancelada'
+                  ? 'bg-[#F6D6DF] text-[#A15D70]'
+                  : 'bg-[#EAF4E8] text-[#5B8A65]'"
+                class="rounded-lg px-3 py-1 text-xs font-medium">
+
+                {{ x.estado }}
+
+              </span>
+            </td>
+
+            <td class="px-4 py-4">
+
+              <button
+                *ngIf="x.estado !== 'cancelada'"
+                type="button"
+                (click)="cancelar(x)"
+                class="text-sm font-medium text-[#C58B98] hover:underline">
+
+                Cancelar lote
+
+              </button>
+
+              <span
+                *ngIf="x.estado === 'cancelada'"
+                class="text-xs text-[#A98B79]">
+                Sin acciones
+              </span>
+
+            </td>
+          </tr>
+
+          <tr *ngIf="history.length === 0">
+            <td
+              colspan="7"
+              class="px-4 py-10 text-center text-[#A98B79]">
+
+              Todavía no hay producciones registradas.
+
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>

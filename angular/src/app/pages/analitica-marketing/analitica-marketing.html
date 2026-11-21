@@ -1,0 +1,77 @@
+<div class="page-heading">
+    <div>
+        <h2>Marketing y analítica</h2>
+        <p>Indicadores para comprender el alcance y desempeño de tus campañas.</p>
+    </div><button class="button soft" (click)="load()">Actualizar datos</button> <button class="button primary"
+        (click)="nuevo()">＋ Nueva campaña</button>
+</div>
+<p class="notice" *ngIf="message">{{message}}</p>
+<section class="panel" *ngIf="showForm">
+    <div class="panel-header">
+        <h2>{{form.id_campania?'Editar campaña':'Registrar campaña'}}</h2><button class="button soft"
+            (click)="showForm=false">Cerrar</button>
+    </div>
+    <form class="field-grid" (ngSubmit)="guardar()"><label>Nombre<input name="nombre" [(ngModel)]="form.nombre"
+                required></label><label>Canal<select name="canal" [(ngModel)]="form.canal">
+                <option>Google Ads</option>
+                <option>Facebook Ads</option>
+                <option>Instagram</option>
+                <option>Correo electrónico</option>
+                <option>Otro</option>
+            </select></label><label>Fecha de inicio<input type="date" name="fecha_inicio"
+                [(ngModel)]="form.fecha_inicio"></label><label>Fecha de fin<input type="date" name="fecha_fin"
+                [(ngModel)]="form.fecha_fin"></label><label>Presupuesto<input type="number" min="0" step="0.01"
+                name="presupuesto" [(ngModel)]="form.presupuesto"></label><label>Estado<select name="estado"
+                [(ngModel)]="form.estado">
+                <option value="planeada">Planeada</option>
+                <option value="activa">Activa</option>
+                <option value="pausada">Pausada</option>
+                <option value="finalizada">Finalizada</option>
+            </select></label>
+        <div><button class="button primary">Guardar campaña</button></div>
+    </form>
+</section>
+<div class="stat-grid">
+    <article class="stat-card"><span>Alcance total</span><strong>{{stats.alcance|number}}</strong><small>Personas
+            alcanzadas</small></article>
+    <article class="stat-card">
+        <span>Impresiones</span><strong>{{stats.impresiones|number}}</strong><small>Visualizaciones de campaña</small>
+    </article>
+    <article class="stat-card"><span>Interacciones</span><strong>{{stats.interacciones|number}}</strong><small>Me gusta,
+            comentarios y clics</small></article>
+    <article class="stat-card"><span>Conversiones</span><strong>{{stats.conversiones|number}}</strong><small>Acciones
+            obtenidas</small></article>
+</div>
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h2>Campañas registradas</h2>
+            <p>Rendimiento por canal</p>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Campaña</th>
+                    <th>Canal</th>
+                    <th>Presupuesto</th>
+                    <th>Estado</th>
+                    <th>ROAS</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let c of campaigns">
+                    <td class="strong">{{c.nombre}}</td>
+                    <td>{{c.canal}}</td>
+                    <td>{{c.presupuesto|currency:'MXN'}}</td>
+                    <td><span class="badge blue">{{c.estado}}</span></td>
+                    <td>{{c.roas||0}}x</td>
+                    <td><button class="text-button" (click)="editar(c)">Editar</button> <button class="text-button"
+                            (click)="eliminar(c)">Eliminar</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>

@@ -1,0 +1,167 @@
+<div class="page-heading">
+  <div>
+    <p class="subtitulo">HECHO CON AMOR, GESTIONADO CON CUIDADO</p>
+    <h2>Marketing.</h2>
+    <p>Todo lo que necesitas para seguir horneando felicidad.</p>
+  </div>
+
+  <button class="button soft" (click)="load()">Actualizar datos</button>
+</div>
+
+<!-- Indicadores -->
+<div class="stat-grid">
+
+  <article class="stat-card">
+    <span>Alcance de campaña</span>
+    <strong>{{stats.alcance | number}}</strong>
+    <small>Personas alcanzadas</small>
+  </article>
+
+  <article class="stat-card">
+    <span>Impresiones</span>
+    <strong>{{stats.impresiones | number}}</strong>
+    <small>Visualizaciones</small>
+  </article>
+
+  <article class="stat-card">
+    <span>Interacciones</span>
+    <strong>{{stats.interacciones | number}}</strong>
+    <small>Me gusta, comentarios y clics</small>
+  </article>
+
+  <article class="stat-card">
+    <span>Conversiones</span>
+    <strong>{{stats.conversiones | number}}</strong>
+    <small>Acciones obtenidas</small>
+  </article>
+
+</div>
+
+<!-- Gráficas -->
+<div class="graficas-marketing">
+
+  <!-- Sabores que conectan -->
+  <section class="panel grafica-panel">
+    <h3>Sabores que conectan</h3>
+    <p>Preferencias de nuestra comunidad</p>
+
+    <div class="sabores-contenido">
+
+      <div class="grafica-dona"
+           [style.background]="graficaSabores()">
+
+        <div class="dona-centro">
+          <strong>{{totalSabores() | number}}</strong>
+          <small>galletas vendidas</small>
+        </div>
+
+      </div>
+
+      <div class="leyenda-sabores">
+
+        <div *ngFor="let s of sabores; let i = index"
+             class="leyenda-item">
+
+          <span class="punto"
+                [style.background]="colores[i]"></span>
+
+          <span class="nombre-sabor">{{s.nombre}}</span>
+
+          <strong>{{porcentaje(s.cantidad) | number:'1.0-0'}}%</strong>
+
+        </div>
+
+        <p *ngIf="sabores.length === 0">
+          Aún no hay ventas registradas.
+        </p>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Canales -->
+  <section class="panel grafica-panel">
+    <h3>Cada canal, una oportunidad</h3>
+    <p>Retorno de inversión por canal</p>
+
+    <div class="lista-canales">
+
+      <div *ngFor="let c of canales; let i = index"
+           class="canal-item">
+
+        <div class="canal-datos">
+          <span>{{c.canal}}</span>
+          <strong>{{c.roas | number:'1.1-1'}}x ROAS</strong>
+        </div>
+
+        <div class="barra-fondo">
+          <div class="barra-valor"
+               [style.width.%]="anchoCanal(c.roas)"
+               [style.background]="colores[i % colores.length]">
+          </div>
+        </div>
+
+      </div>
+
+      <p *ngIf="canales.length === 0">
+        Aún no hay campañas registradas.
+      </p>
+
+    </div>
+  </section>
+
+</div>
+
+<!-- Campañas -->
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <h2>Rendimiento de campañas</h2>
+      <p>Campañas activas y recientes</p>
+    </div>
+
+    <a class="button primary" routerLink="/analitica-marketing">
+      + Nueva campaña
+    </a>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Campaña</th>
+          <th>Canal</th>
+          <th>Presupuesto</th>
+          <th>Estado</th>
+          <th>ROAS</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let c of campaigns">
+          <td>{{c.nombre}}</td>
+          <td>{{c.canal}}</td>
+          <td>{{c.presupuesto | currency:'MXN'}}</td>
+          <td>{{c.estado}}</td>
+          <td>{{c.roas | number:'1.1-1'}}x</td>
+        </tr>
+
+        <tr *ngIf="campaigns.length === 0">
+          <td colspan="5">No hay campañas registradas.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Acceso a analítica -->
+<div class="actions-row">
+  <a class="button soft" routerLink="/analitica-marketing">
+    Ver campañas y analítica
+  </a>
+
+  <a class="button soft" routerLink="/catalogo">
+    Ver catálogo
+  </a>
+</div>

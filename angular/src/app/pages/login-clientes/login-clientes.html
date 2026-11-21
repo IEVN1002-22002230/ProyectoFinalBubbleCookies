@@ -1,0 +1,74 @@
+<div class="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f6f0eb] px-4 py-10">
+  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_28%,rgba(225,190,162,.55),transparent_30%),radial-gradient(circle_at_82%_72%,rgba(157,198,230,.45),transparent_28%)]"></div>
+  <div class="pointer-events-none absolute inset-0 backdrop-blur-[3px]"></div>
+
+  <main class="relative z-10 grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/80 bg-[#fffdfa]/95 shadow-[0_24px_80px_rgba(93,65,45,.18)] md:grid-cols-2">
+    <section class="hidden flex-col justify-between bg-[#f4e8dc] p-10 md:flex">
+      <img class="h-16 w-40 object-contain object-left" src="/assets/bubblecookies/bubblecookies-logo.png" alt="BubbleCookies">
+      <div class="py-12">
+        <span class="mb-5 inline-flex rounded-full bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[.22em] text-[#a8795b]">Hecho con amor</span>
+        <h1 class="max-w-md text-5xl font-semibold leading-[1.12] tracking-tight text-[#76543e]">Galletas que enamoran en cada <span class="text-[#83b9e5]">mordisco.</span></h1>
+        <p class="mt-6 max-w-sm text-base leading-7 text-[#9a7963]">Entra a tu cuenta, descubre tus favoritas y sigue cada pedido desde que sale del horno.</p>
+      </div>
+      <p class="text-xs tracking-wide text-[#a98973]">Pequeñas galletas. Grandes momentos.</p>
+    </section>
+
+    <section class="flex flex-col justify-center px-7 py-10 sm:px-12">
+      <img class="mb-8 h-14 w-36 object-contain object-left md:hidden" src="/assets/bubblecookies/bubblecookies-logo.png" alt="BubbleCookies">
+      <div class="mb-8">
+        <span class="text-xs font-semibold uppercase tracking-[.22em] text-[#b88968]">BUBBLECOOKIES TIENDA</span>
+        <h2 class="mt-3 text-3xl font-semibold tracking-tight text-[#76543e]">¡Qué gusto verte!</h2>
+        <p class="mt-2 text-sm leading-6 text-[#a1816b]">Inicia sesión para continuar con tu pedido.</p>
+      </div>
+
+      <form class="space-y-5" (ngSubmit)="submit()">
+        <label class="block text-sm font-medium text-[#76543e]">Correo electrónico
+          <input class="mt-2 w-full rounded-xl border border-[#ead9cc] bg-white px-4 py-3.5 text-sm text-[#674832] outline-none transition placeholder:text-[#c2a998] focus:border-[#83b9e5] focus:ring-4 focus:ring-[#83b9e5]/20" type="email" name="correo" [(ngModel)]="correo" placeholder="tu@correo.com" autocomplete="email" required>
+        </label>
+        <label class="block text-sm font-medium text-[#76543e]">Contraseña
+          <input class="mt-2 w-full rounded-xl border border-[#ead9cc] bg-white px-4 py-3.5 text-sm text-[#674832] outline-none transition placeholder:text-[#c2a998] focus:border-[#83b9e5] focus:ring-4 focus:ring-[#83b9e5]/20" type="password" name="password" [(ngModel)]="password" placeholder="Tu contraseña" autocomplete="current-password" required>
+        </label>
+        <p *ngIf="error" class="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{{error}}</p>
+        <button class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#86bce7] px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#6da9da] disabled:cursor-not-allowed disabled:opacity-60" type="submit" [disabled]="loading">
+          {{loading ? 'Verificando...' : 'Entrar a mi cuenta'}} <span aria-hidden="true">→</span>
+        </button>
+      </form>
+
+      <div class="my-7 flex items-center gap-3 text-xs text-[#c0a18c]"><span class="h-px flex-1 bg-[#eee0d5]"></span>O SI ERES NUEVO CLIENTE<span class="h-px flex-1 bg-[#eee0d5]"></span></div>
+      <button type="button" (click)="openRegister()" class="w-full rounded-xl border border-[#dfc8b6] bg-white px-5 py-3.5 text-sm font-semibold text-[#8a6348] transition hover:border-[#86bce7] hover:bg-[#f8fbff]">Crear mi cuenta gratis</button>
+      <p class="mt-7 text-center text-xs text-[#b2937d]">¿Solo quieres mirar? <a routerLink="/catalogo" class="font-semibold text-[#6da9da] underline-offset-4 hover:underline">Volver a la tienda</a></p>
+    </section>
+  </main>
+
+  <div *ngIf="showRegister" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#3b2a20]/35 p-3 backdrop-blur-md sm:p-6" (click)="closeRegister()">
+    <section role="dialog" aria-modal="true" aria-labelledby="register-title" class="relative my-auto max-h-[94vh] w-full max-w-lg overflow-y-auto rounded-[1.6rem] border border-[#f0e5dc] bg-[#fffdfa] p-7 shadow-2xl sm:p-9" (click)="$event.stopPropagation()">
+      <button type="button" (click)="closeRegister()" aria-label="Cerrar registro" class="absolute right-5 top-5 rounded-full p-2 text-[#9a7458] transition hover:bg-[#f6eee8]">✕</button>
+      <img class="h-12 w-32 object-contain object-left" src="/assets/bubblecookies/bubblecookies-logo.png" alt="BubbleCookies">
+      <div class="my-5 flex justify-center"><div class="flex h-16 w-16 items-center justify-center rounded-full bg-[#f9edf0] text-3xl">🍪</div></div>
+      <h2 id="register-title" class="text-2xl font-semibold text-[#76543e]">Únete al lado dulce</h2>
+      <p class="mt-2 text-sm text-[#a1816b]">Crea tu cuenta y comparte momentos deliciosos.</p>
+      <div class="mt-5 rounded-xl bg-[#fff8ec] px-4 py-3 text-xs leading-5 text-[#a17b5d]">Registro de cliente BubbleCookies. Tus datos se guardarán en tu cuenta para consultar tus pedidos.</div>
+      <form class="mt-6 space-y-4" (ngSubmit)="register()">
+        <label class="block text-sm font-medium text-[#76543e]">Nombre completo
+          <input class="mt-2 w-full rounded-xl border border-[#ead9cc] bg-white px-4 py-3 text-sm outline-none focus:border-[#83b9e5] focus:ring-4 focus:ring-[#83b9e5]/20" name="nombreRegistro" [(ngModel)]="nombreRegistro" placeholder="Tu nombre" autocomplete="name" required>
+        </label>
+        <label class="block text-sm font-medium text-[#76543e]">Correo electrónico
+          <input class="mt-2 w-full rounded-xl border border-[#ead9cc] bg-white px-4 py-3 text-sm outline-none focus:border-[#83b9e5] focus:ring-4 focus:ring-[#83b9e5]/20" type="email" name="correoRegistro" [(ngModel)]="correoRegistro" placeholder="tu@correo.com" autocomplete="email" required>
+        </label>
+        <label class="block text-sm font-medium text-[#76543e]">Teléfono <span class="font-normal text-[#b89c88]">(opcional)</span>
+          <input class="mt-2 w-full rounded-xl border border-[#ead9cc] bg-white px-4 py-3 text-sm outline-none focus:border-[#83b9e5] focus:ring-4 focus:ring-[#83b9e5]/20" type="tel" name="telefonoRegistro" [(ngModel)]="telefonoRegistro" placeholder="Tu teléfono" autocomplete="tel">
+        </label>
+        <label class="block text-sm font-medium text-[#76543e]">Contraseña
+          <input class="mt-2 w-full rounded-xl border border-[#ead9cc] bg-white px-4 py-3 text-sm outline-none focus:border-[#83b9e5] focus:ring-4 focus:ring-[#83b9e5]/20" type="password" name="passwordRegistro" [(ngModel)]="passwordRegistro" placeholder="Al menos 8 caracteres" autocomplete="new-password" minlength="8" required>
+        </label>
+        <label class="block text-sm font-medium text-[#76543e]">Confirmar contraseña
+          <input class="mt-2 w-full rounded-xl border border-[#ead9cc] bg-white px-4 py-3 text-sm outline-none focus:border-[#83b9e5] focus:ring-4 focus:ring-[#83b9e5]/20" type="password" name="confirmarPassword" [(ngModel)]="confirmarPassword" placeholder="Repite tu contraseña" required>
+        </label>
+        <label class="flex items-start gap-3 text-xs leading-5 text-[#9a7963]"><input class="mt-1 rounded border-[#d8c4b4] text-[#83b9e5] focus:ring-[#83b9e5]" type="checkbox" name="aceptaTerminos" [(ngModel)]="aceptaTerminos"><span>Acepto los términos de uso y el tratamiento de mis datos para gestionar mi cuenta y mis pedidos.</span></label>
+        <p *ngIf="registroError" class="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{{registroError}}</p>
+        <button type="submit" [disabled]="registroLoading" class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#86bce7] px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-[#6da9da] disabled:opacity-60">{{registroLoading ? 'Creando cuenta...' : 'Crear mi cuenta'}} <span>→</span></button>
+      </form>
+      <p class="mt-5 text-center text-sm text-[#a1816b]">¿Ya tienes cuenta? <button type="button" (click)="closeRegister()" class="font-semibold text-[#6da9da] hover:underline">Inicia sesión</button></p>
+    </section>
+  </div>
+</div>

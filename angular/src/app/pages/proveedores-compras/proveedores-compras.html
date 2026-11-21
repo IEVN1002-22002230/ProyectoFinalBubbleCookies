@@ -1,0 +1,283 @@
+
+<div class="space-y-6 text-[#805D49]">
+
+  <!-- ENCABEZADO -->
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-[#B99784]">
+        HECHO CON AMOR, GESTIONADO CON CUIDADO
+      </p>
+      <h2 class="mt-2 text-2xl font-bold text-[#805D49]">
+        Proveedores y compras.
+      </h2>
+      <p class="mt-1 text-sm text-[#B99784]">
+        Todo lo que necesitas para seguir horneando felicidad.
+      </p>
+    </div>
+
+    <div class="flex gap-2">
+      <button type="button" (click)="load()"
+        class="rounded-lg border border-[#EADBD0] bg-white px-4 py-2.5 text-sm font-medium text-[#805D49] hover:bg-[#F7EBE3]">
+        Actualizar datos
+      </button>
+
+      <button type="button" (click)="nuevo()"
+        class="rounded-lg bg-[#BBDFF5] px-4 py-2.5 text-sm font-medium text-[#805D49] hover:bg-[#A5D2ED]">
+        + Nuevo proveedor
+      </button>
+    </div>
+  </div>
+
+  <!-- MENSAJE -->
+  <div *ngIf="message"
+    class="rounded-lg border border-[#BBDFF5] bg-[#EFF8FE] p-4 text-sm text-[#805D49]">
+    {{message}}
+  </div>
+
+  <!-- TARJETAS DE PROVEEDORES -->
+  <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+
+    <div *ngFor="let x of providers"
+      class="flex flex-col rounded-xl border border-[#EADBD0] bg-[#FFFCFA] p-6 shadow-sm">
+
+      <!-- ICONO -->
+      <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-[#FFF0B8] text-[#805D49]">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor"
+          stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 6h11v11H3V6Zm11 4h4l3 3v4h-7v-7ZM7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm11 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
+        </svg>
+      </div>
+
+      <h3 class="text-lg font-semibold text-[#805D49]">
+        {{x.nombre}}
+      </h3>
+
+      <p class="mt-1 text-sm text-[#B99784]">
+        {{x.contacto || 'Proveedor de materia prima'}}
+      </p>
+
+      <div class="my-5 space-y-2 text-sm text-[#A88C7B]">
+        <p>{{x.correo || 'Sin correo registrado'}}</p>
+        <p>{{x.telefono || 'Sin teléfono registrado'}}</p>
+      </div>
+
+      <button type="button"
+        (click)="nuevaCompra(); purchaseForm.id_proveedor=x.id_proveedor"
+        class="mt-auto w-full rounded-lg border border-[#F6D6DF] bg-[#FFF1F5] px-5 py-2.5 text-sm font-medium text-[#805D49] hover:bg-[#F6D6DF]">
+        Registrar compra +
+      </button>
+
+      <div class="mt-4 flex justify-end gap-4">
+        <button type="button" (click)="editar(x)"
+          class="text-sm font-medium text-[#6DA9CF] hover:underline">
+          Editar
+        </button>
+
+        <button type="button" (click)="eliminar(x)"
+          class="text-sm font-medium text-[#C58B98] hover:underline">
+          Eliminar
+        </button>
+      </div>
+
+    </div>
+
+    <p *ngIf="providers.length===0" class="text-sm text-[#A88C7B]">
+      Aún no hay proveedores registrados.
+    </p>
+  </div>
+
+  <!-- FORMULARIO DE PROVEEDOR -->
+  <section *ngIf="show"
+    class="rounded-xl border border-[#EADBD0] bg-[#FFFCFA] p-6 shadow-sm">
+
+    <div class="mb-5 flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-[#805D49]">
+        {{form.id_proveedor ? 'Editar proveedor' : 'Nuevo proveedor'}}
+      </h3>
+
+      <button type="button" (click)="show=false"
+        class="rounded-lg bg-[#F7EBE3] px-4 py-2 text-sm text-[#805D49] hover:bg-[#EADBD0]">
+        Cerrar
+      </button>
+    </div>
+
+    <form (ngSubmit)="save()" class="grid gap-4 md:grid-cols-2">
+
+      <div>
+        <label class="mb-2 block text-sm font-medium">Nombre</label>
+        <input name="nombre" [(ngModel)]="form.nombre" required
+          class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm text-[#805D49]">
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium">Contacto</label>
+        <input name="contacto" [(ngModel)]="form.contacto"
+          class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm text-[#805D49]">
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium">Teléfono</label>
+        <input name="telefono" [(ngModel)]="form.telefono"
+          class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm text-[#805D49]">
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium">Correo</label>
+        <input type="email" name="correo" [(ngModel)]="form.correo"
+          class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm text-[#805D49]">
+      </div>
+
+      <div class="md:col-span-2">
+        <button type="submit"
+          class="rounded-lg bg-[#805D49] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#6D4D3B]">
+          Guardar proveedor
+        </button>
+      </div>
+
+    </form>
+  </section>
+
+  <!-- HISTORIAL DE COMPRAS -->
+  <section class="overflow-hidden rounded-xl border border-[#EADBD0] bg-white shadow-sm">
+
+    <div class="flex items-center justify-between border-b border-[#EADBD0] p-5">
+      <h3 class="text-lg font-semibold text-[#805D49]">
+        Historial de compras
+      </h3>
+
+      <button type="button" (click)="nuevaCompra()"
+        class="text-sm font-medium text-[#6DA9CF] hover:underline">
+        Nueva compra +
+      </button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-[#A88C7B]">
+
+        <thead class="bg-[#F7EBE3] text-xs uppercase text-[#805D49]">
+          <tr>
+            <th class="px-6 py-3">Proveedor</th>
+            <th class="px-6 py-3">Folio</th>
+            <th class="px-6 py-3">Fecha</th>
+            <th class="px-6 py-3">Total</th>
+            <th class="px-6 py-3">Estado</th>
+            <th class="px-6 py-3">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let x of purchases"
+            class="border-b border-[#F1E6DE] bg-white hover:bg-[#FFFCFA]">
+
+            <td class="whitespace-nowrap px-6 py-4 font-medium text-[#805D49]">
+              {{x.proveedor}}
+            </td>
+
+            <td class="px-6 py-4">{{x.id_compra}}</td>
+            <td class="px-6 py-4">{{x.fecha_compra | date:'dd MMM yyyy'}}</td>
+            <td class="px-6 py-4">{{x.total | currency:'MXN'}}</td>
+
+            <td class="px-6 py-4">
+              <span class="rounded-full px-3 py-1 text-xs"
+                [ngClass]="x.estado==='cancelada'
+                  ? 'bg-[#F6D6DF] text-[#805D49]'
+                  : 'bg-[#FFF0B8] text-[#805D49]'">
+                {{x.estado}}
+              </span>
+            </td>
+
+            <td class="px-6 py-4">
+              <button *ngIf="x.estado!=='cancelada'"
+                type="button" (click)="cancelarCompra(x)"
+                class="font-medium text-[#6DA9CF] hover:underline">
+                Cancelar
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="purchases.length===0">
+            <td colspan="6" class="px-6 py-5 text-center">
+              Aún no hay compras registradas.
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+  </section>
+
+  <!-- FORMULARIO REGISTRAR COMPRA -->
+  <section *ngIf="showPurchase"
+    class="rounded-xl border border-[#EADBD0] bg-[#FFFCFA] p-6 shadow-sm">
+
+    <div class="mb-5 flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-[#805D49]">
+        Registrar compra de materia prima
+      </h3>
+
+      <button type="button" (click)="showPurchase=false"
+        class="rounded-lg bg-[#F7EBE3] px-4 py-2 text-sm text-[#805D49] hover:bg-[#EADBD0]">
+        Cerrar
+      </button>
+    </div>
+
+    <form (ngSubmit)="guardarCompra()" class="grid gap-4 md:grid-cols-2">
+
+      <div>
+        <label class="mb-2 block text-sm font-medium">Proveedor</label>
+        <select name="id_proveedor" [(ngModel)]="purchaseForm.id_proveedor" required
+          class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm text-[#805D49]">
+          <option *ngFor="let p of providers" [ngValue]="p.id_proveedor">
+            {{p.nombre}}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium">Ingrediente</label>
+        <select name="id_ingrediente" [(ngModel)]="purchaseForm.id_ingrediente" required
+          class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm text-[#805D49]">
+          <option *ngFor="let i of ingredients" [ngValue]="i.id_ingrediente">
+            {{i.nombre}}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium">Cantidad</label>
+        <input type="number" min="0.001" step="0.001" name="cantidad"
+          [(ngModel)]="purchaseForm.cantidad" required
+          class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm text-[#805D49]">
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium">Costo unitario</label>
+        <input type="number" min="0" step="0.01" name="costo_unitario"
+          [(ngModel)]="purchaseForm.costo_unitario" required
+          class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm text-[#805D49]">
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="mb-2 block text-sm font-medium">Observaciones</label>
+        <input name="observaciones" [(ngModel)]="purchaseForm.observaciones"
+          class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm text-[#805D49]">
+      </div>
+
+      <div class="md:col-span-2">
+        <button type="submit"
+          class="rounded-lg bg-[#805D49] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#6D4D3B]">
+          Guardar compra
+        </button>
+      </div>
+
+    </form>
+  </section>
+
+  <!-- PIE DE PÁGINA -->
+  <div class="flex flex-wrap justify-between gap-2 text-xs text-[#B99784]">
+    <span>© 2026 BubbleCookies. Hecho con amor y un poquito de azúcar.</span>
+    <span>✦ Todo listo para crear cosas deliciosas.</span>
+  </div>
+
+</div>

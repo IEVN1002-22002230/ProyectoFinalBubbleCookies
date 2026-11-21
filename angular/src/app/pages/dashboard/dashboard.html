@@ -1,0 +1,342 @@
+
+<div class="dashboard">
+
+  <!-- ENCABEZADO -->
+  <header class="welcome-header">
+    <div>
+      <span class="welcome-label">PANEL GENERAL</span>
+      <h1>¡Hola! Un dulce día para crecer.</h1>
+      <p>Este es el resumen de lo que está pasando en BubbleCookies.</p>
+    </div>
+
+    <div class="header-actions">
+
+    <button class="btn-exportar" type="button" (click)="exportarReporte()">
+        ↓ Exportar reporte
+    </button>
+
+    <button class="btn-secondary" type="button" (click)="load()">
+        ↻ Actualizar
+    </button>
+
+    <a class="btn-primary" routerLink="/pedidos-ventas">
+        + Nuevo pedido
+    </a>
+
+    </div>
+  </header>
+
+  <!-- INDICADORES -->
+  <section class="stats-grid">
+    <article class="stat-card stat-sales">
+      <div class="stat-top">
+        <span class="stat-icon">＄</span>
+        <span class="stat-tag">VENTAS</span>
+      </div>
+      <p class="stat-title">Ventas registradas</p>
+      <h2>{{ stats.ventas | currency:'MXN':'symbol':'1.0-0' }}</h2>
+      <span class="stat-description">Ingresos acumulados</span>
+    </article>
+
+    <article class="stat-card stat-orders">
+      <div class="stat-top">
+        <span class="stat-icon">▤</span>
+        <span class="stat-tag">PEDIDOS</span>
+      </div>
+      <p class="stat-title">Pedidos recibidos</p>
+      <h2>{{ stats.pedidos }}</h2>
+      <span class="stat-description">Pedidos no cancelados</span>
+    </article>
+
+    <article class="stat-card stat-production">
+      <div class="stat-top">
+        <span class="stat-icon">♧</span>
+        <span class="stat-tag">CATÁLOGO</span>
+      </div>
+      <p class="stat-title">Productos activos</p>
+      <h2>{{ stats.productos }}</h2>
+      <span class="stat-description">Productos disponibles</span>
+    </article>
+
+    <article class="stat-card stat-stock">
+      <div class="stat-top">
+        <span class="stat-icon">▧</span>
+        <span class="stat-tag">INVENTARIO</span>
+      </div>
+      <p class="stat-title">Stock disponible</p>
+      <h2>{{ stats.stock }}</h2>
+      <span class="stat-description">Unidades disponibles</span>
+    </article>
+  </section>
+
+  <!-- UN DULCE CRECIMIENTO -->
+  <section class="panel growth-panel">
+    <div class="section-heading">
+      <div>
+        <span class="section-eyebrow">RENDIMIENTO</span>
+        <h2>Un dulce crecimiento</h2>
+        <p>Comportamiento de ventas y pedidos durante los últimos siete días.</p>
+      </div>
+      <div class="chart-legend">
+        <span><i class="legend-dot sales-dot"></i> Ventas</span>
+        <span><i class="legend-dot orders-dot"></i> Pedidos</span>
+      </div>
+    </div>
+
+    <div class="line-chart" *ngIf="ventasSemanales.length; else noGrowth">
+      <div class="chart-y-labels">
+        <span>Mayor</span>
+        <span>Medio</span>
+        <span>Menor</span>
+      </div>
+
+      <div class="chart-content">
+        <div class="chart-grid-lines">
+          <span></span><span></span><span></span><span></span>
+        </div>
+
+        <svg viewBox="0 0 700 190"
+             preserveAspectRatio="none"
+             class="growth-svg">
+
+          <defs>
+            <linearGradient id="ventasArea" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#8ca9d8" stop-opacity="0.19"/>
+              <stop offset="100%" stop-color="#8ca9d8" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="pedidosArea" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#e8a6bd" stop-opacity="0.14"/>
+              <stop offset="100%" stop-color="#e8a6bd" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <path [attr.d]="getAreaPath('ventas')" fill="url(#ventasArea)"/>
+          <path [attr.d]="getAreaPath('pedidos')" fill="url(#pedidosArea)"/>
+
+          <path class="sales-line" [attr.d]="getSmoothPath('ventas')"/>
+          <path class="orders-line" [attr.d]="getSmoothPath('pedidos')"/>
+
+          <ng-container *ngFor="let item of ventasSemanales; let i = index">
+
+            <circle class="sales-point"
+                    [attr.cx]="getPointX(i)"
+                    [attr.cy]="getPointY('ventas', item.ventas)"
+                    r="4"/>
+
+            <text class="sales-value"
+                  [attr.x]="getPointX(i)"
+                  [attr.y]="getPointY('ventas', item.ventas) - 14"
+                  text-anchor="middle">
+              {{ toNumber(item.ventas) | currency:'MXN':'symbol':'1.0-0' }}
+            </text>
+
+            <circle class="orders-point"
+                    [attr.cx]="getPointX(i)"
+                    [attr.cy]="getPointY('pedidos', item.pedidos)"
+                    r="4"/>
+
+            <text class="orders-value"
+                  [attr.x]="getPointX(i)"
+                  [attr.y]="getPointY('pedidos', item.pedidos) + 19"
+                  text-anchor="middle">
+              {{ item.pedidos }}
+            </text>
+
+          </ng-container>
+        </svg>
+
+        <div class="chart-x-labels">
+          <span *ngFor="let item of ventasSemanales">
+            {{ item.dia || item.periodo }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noGrowth>
+      <p class="empty-state">No hay datos suficientes para mostrar el crecimiento.</p>
+    </ng-template>
+  </section>
+
+  <!-- GRÁFICAS SECUNDARIAS -->
+  <section class="charts-grid">
+
+    <!-- LAS CONSENTIDAS -->
+    <article class="panel consentidas-panel">
+      <div class="section-heading">
+        <div>
+          <h2>Las consentidas</h2>
+          <p>Galletas más vendidas de la semana</p>
+        </div>
+        <span class="consentidas-icon">🍪</span>
+      </div>
+
+      <div class="consentidas-grafica">
+        <div class="consentidas-cuadricula">
+          <div *ngFor="let linea of [4,3,2,1,0]">
+            <span>{{ (getMaxGalletas() * linea / 4) | number:'1.0-0' }}</span>
+            <div></div>
+          </div>
+        </div>
+
+        <div class="consentidas-columnas">
+          <div class="consentidas-columna" *ngFor="let galleta of galletas">
+            <div class="consentidas-area-barra">
+              <span class="consentidas-cantidad"
+                    [style.bottom.%]="getAlturaGalleta(galleta.cantidad)">
+                {{ galleta.cantidad }}
+              </span>
+              <div class="consentidas-barra"
+                   [style.height.%]="getAlturaGalleta(galleta.cantidad)"
+                   [style.background]="galleta.color">
+              </div>
+            </div>
+
+            <div class="consentidas-producto">
+              <img [src]="getProductImage(galleta)"
+                   [alt]="galleta.nombre"
+                   class="consentidas-imagen">
+              <span>{{ galleta.nombre }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="consentidas-footer"
+           *ngIf="getTotalGalletasVendidas() > 0">
+        <div class="flex items-center gap-2">
+          <span class="consentidas-numero">1</span>
+          <p>
+            <strong>{{ getGalletaFavorita().nombre }}</strong>
+            se lleva el corazón de todos
+          </p>
+        </div>
+        <span class="consentidas-corazon">♡</span>
+      </div>
+    </article>
+
+    <!-- RECIÉN SALIDOS DEL HORNO -->
+    <article class="panel">
+      <div class="section-heading">
+        <div>
+          <span class="section-eyebrow">ESTADO DE PEDIDOS</span>
+          <h2>Recién salidos del horno</h2>
+          <p>Así se encuentran los pedidos actualmente.</p>
+        </div>
+        <span class="heading-decoration">✿</span>
+      </div>
+
+      <div class="status-content"
+           *ngIf="pedidosEstado.length; else noStatuses">
+        <div class="donut-chart"
+             [style.background]="getStatusGradient()">
+          <div class="donut-center">
+            <strong>{{ getStatusTotal() }}</strong>
+            <span>Pedidos</span>
+          </div>
+        </div>
+
+        <div class="status-legend">
+          <div class="status-row" *ngFor="let estado of pedidosEstado">
+            <span class="status-color"
+                  [style.background]="getStatusColor(estado.estado)"></span>
+            <span>{{ getStatusLabel(estado.estado) }}</span>
+            <strong>{{ estado.cantidad }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noStatuses>
+        <p class="empty-state">No hay pedidos registrados todavía.</p>
+      </ng-template>
+    </article>
+  </section>
+
+  <!-- UN OJITO AL INVENTARIO -->
+  <section class="panel inventory-panel">
+    <div class="section-heading">
+      <div>
+        <span class="section-eyebrow">CONTROL DE INSUMOS</span>
+        <h2>Un ojito al inventario</h2>
+        <p>Ingredientes que requieren atención por su nivel de existencia.</p>
+      </div>
+      <span class="heading-decoration">◉</span>
+    </div>
+
+    <div class="inventory-list"
+         *ngIf="inventarioBajo.length; else noInventory">
+
+      <div class="inventory-item" *ngFor="let ingrediente of inventarioBajo">
+        <div class="inventory-info">
+          <div>
+            <strong>{{ ingrediente.nombre }}</strong>
+            <span>
+              Existencia actual: {{ ingrediente.cantidad }} {{ ingrediente.unidad }}
+            </span>
+          </div>
+          <span class="minimum-stock">
+            Mínimo: {{ ingrediente.stock_minimo }} {{ ingrediente.unidad }}
+          </span>
+        </div>
+
+        <div class="inventory-track">
+          <div class="inventory-progress"
+               [style.width.%]="getStockWidth(ingrediente.cantidad, ingrediente.stock_minimo)"
+               [class.inventory-warning]="toNumber(ingrediente.cantidad) <= toNumber(ingrediente.stock_minimo)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noInventory>
+      <p class="empty-state">No hay ingredientes para mostrar.</p>
+    </ng-template>
+  </section>
+
+  <!-- ACTIVIDAD RECIENTE -->
+  <section class="panel recent-panel">
+    <div class="section-heading">
+      <div>
+        <span class="section-eyebrow">MOVIMIENTOS RECIENTES</span>
+        <h2>Actividad reciente</h2>
+        <p>Los últimos pedidos registrados en BubbleCookies.</p>
+      </div>
+      <a class="text-link" routerLink="/pedidos-ventas">
+        Ver todos los pedidos →
+      </a>
+    </div>
+
+    <div class="table-container" *ngIf="orders.length; else noOrders">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Pedido</th>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let pedido of orders">
+            <td class="order-code">{{ pedido.codigo_pedido }}</td>
+            <td>{{ pedido.nombre_cliente }}</td>
+            <td>{{ pedido.fecha_pedido | date:'dd/MM/yyyy' }}</td>
+            <td class="order-total">{{ pedido.total | currency:'MXN' }}</td>
+            <td>
+              <span class="order-status"
+                    [ngClass]="getOrderStatusClass(pedido.estado)">
+                {{ getStatusLabel(pedido.estado) }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #noOrders>
+      <p class="empty-state">Todavía no hay pedidos registrados.</p>
+    </ng-template>
+  </section>
+
+</div>

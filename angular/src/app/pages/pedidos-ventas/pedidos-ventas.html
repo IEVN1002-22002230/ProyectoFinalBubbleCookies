@@ -1,0 +1,125 @@
+<div class="space-y-8">
+  <header class="flex flex-col justify-between gap-5 md:flex-row md:items-center">
+    <div>
+      <p class="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#b88c70]">Hecho con amor, gestionado con cuidado</p>
+      <h1 class="font-display text-[30px] font-extrabold tracking-[-1.2px] text-[#79614f]">Pedidos<span class="text-[#8cc0eb]">.</span></h1>
+      <p class="mt-2 text-sm text-[#ad9583]">Todo lo que necesitas para seguir horneando felicidad.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <button type="button" (click)="exportar()" class="inline-flex h-12 items-center gap-3 rounded-xl border border-[#e9ded4] bg-white px-5 text-sm font-semibold text-[#8b6b54] shadow-sm transition hover:bg-[#fcf8f4]">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"/></svg>
+        Exportar reporte
+      </button>
+      <button type="button" (click)="load()" class="inline-flex h-12 items-center gap-3 rounded-xl bg-[#8cc0eb] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#78b2e2]">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+        Actualizar pedidos
+      </button>
+    </div>
+  </header>
+
+  <section class="overflow-hidden rounded-2xl border border-[#eee3da] bg-white shadow-[0_2px_8px_rgba(121,97,79,0.025)]">
+    <div class="flex flex-col justify-between gap-4 border-b border-[#f0e8e1] px-6 py-6 sm:flex-row sm:items-center sm:px-7">
+      <div class="flex items-center gap-2">
+        <h2 class="font-display text-lg font-bold tracking-[-0.4px] text-[#76563f]">Todos tus pedidos</h2>
+        <span class="rounded-lg border border-[#eadfd5] px-2 py-1 text-xs font-medium text-[#a98b76]">{{ filtered.length }}</span>
+      </div>
+      <div class="relative w-full sm:max-w-xs">
+        <svg class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#b18e74]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+        <input type="search" [(ngModel)]="search" placeholder="Buscar pedido o cliente..." class="h-12 w-full rounded-xl border border-[#eadfd5] bg-white pl-11 pr-4 text-sm text-[#795d49] outline-none transition placeholder:text-[#b8a292] focus:border-[#8cc0eb] focus:ring-2 focus:ring-[#8cc0eb]/25"/>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[850px] border-collapse text-left">
+        <thead class="bg-[#fcfaf8]">
+          <tr class="border-b border-[#f0e8e1] text-[11px] font-medium text-[#ae8f78]">
+            <th class="px-7 py-5 font-medium">Pedido</th>
+            <th class="px-5 py-5 font-medium">Cliente</th>
+            <th class="px-5 py-5 font-medium">Productos</th>
+            <th class="px-5 py-5 font-medium">Total</th>
+            <th class="px-5 py-5 font-medium">Estado</th>
+            <th class="px-5 py-5 font-medium">Hora</th>
+            <th class="px-6 py-5 text-right font-medium"> </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let x of filtered" class="border-b border-[#f2ebe5] last:border-0 transition hover:bg-[#fdfbf9]">
+            <td class="whitespace-nowrap px-7 py-5">
+              <button type="button" (click)="abrirDetalle(x)" class="text-sm font-semibold text-[#78a8d0] hover:text-[#5d91bd]">{{ x.codigo_pedido }}</button>
+            </td>
+            <td class="px-5 py-5">
+              <div class="flex items-center gap-3 whitespace-nowrap">
+                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#f7e9e9] text-[11px] font-semibold text-[#b1848a]">{{ iniciales(x.nombre_cliente) }}</span>
+                <span class="text-sm text-[#876d5b]">{{ x.nombre_cliente }}</span>
+              </div>
+            </td>
+            <td class="px-5 py-5 text-sm text-[#947b68]">{{ resumenProductos(x) }}</td>
+            <td class="whitespace-nowrap px-5 py-5 text-sm font-semibold text-[#795b42]">{{ x.total | currency:'MXN':'symbol':'1.2-2' }}</td>
+            <td class="px-5 py-5">
+              <span class="inline-flex items-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-[11px] font-medium"
+                [ngClass]="claseEstado(x.estado)">
+                <span class="h-1.5 w-1.5 rounded-full" [ngClass]="puntoEstado(x.estado)"></span>{{ etiquetaEstado(x.estado) }}
+              </span>
+            </td>
+            <td class="whitespace-nowrap px-5 py-5 text-sm text-[#b19784]">{{ tiempo(x.fecha_pedido) }}</td>
+            <td class="px-6 py-5 text-right">
+              <button type="button" (click)="abrirDetalle(x)" aria-label="Ver detalle del pedido" class="inline-grid h-10 w-10 place-items-center rounded-xl border border-transparent text-[#8b6548] transition hover:border-[#e9ded4] hover:bg-[#fcf8f4]">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m9 5 7 7-7 7"/></svg>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filtered.length === 0">
+            <td colspan="7" class="px-6 py-14 text-center text-sm text-[#b19a88]">No se encontraron pedidos.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="flex flex-col justify-between gap-2 pb-2 text-[11px] text-[#b49a87] sm:flex-row">
+    <span>© 2025 BubbleCookies. Hecho con amor y un poquito de azúcar.</span>
+    <span class="inline-flex items-center gap-2"><i class="h-1.5 w-1.5 rounded-full bg-[#a9bd94]"></i>Todo listo para crear cosas deliciosas</span>
+  </footer>
+</div>
+
+<!-- Modal de detalle del pedido -->
+<div *ngIf="pedidoSeleccionado" class="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-[#4a3b31]/35 px-4 py-8 backdrop-blur-[5px]" (click)="cerrarDetalle()">
+  <section role="dialog" aria-modal="true" [attr.aria-label]="'Detalle del pedido ' + pedidoSeleccionado.codigo_pedido"
+    class="relative my-auto w-full max-w-[650px] rounded-[26px] bg-[#fffefd] px-7 py-8 shadow-[0_25px_80px_rgba(61,45,34,0.20)] sm:px-12 sm:py-10"
+    (click)="$event.stopPropagation()">
+    <button type="button" (click)="cerrarDetalle()" aria-label="Cerrar" class="absolute right-7 top-7 grid h-8 w-8 place-items-center rounded-full text-[#a77d5b] transition hover:bg-[#f8f1eb]">
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6 6 12 12M18 6 6 18"/></svg>
+    </button>
+
+    <div class="mb-7 grid h-12 w-12 place-items-center rounded-2xl bg-[#f9edf1] text-[#bd8795]">
+      <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 8h14l1 13H4L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+    </div>
+    <h2 class="font-display text-[27px] font-extrabold tracking-[-0.9px] text-[#76563f] sm:text-[32px]">Pedido #{{ pedidoSeleccionado.codigo_pedido }}</h2>
+    <p class="mt-3 text-sm text-[#ad896b]">{{ pedidoSeleccionado.nombre_cliente }} · {{ tiempo(pedidoSeleccionado.fecha_pedido) }}</p>
+
+    <div class="my-8 border-t border-[#eee3da]"></div>
+
+    <div class="space-y-4">
+      <div *ngFor="let item of detallePedido" class="flex items-start justify-between gap-4 text-sm">
+        <span class="text-[#795b42]">{{ item.nombre_producto }} × {{ item.cantidad }}</span>
+        <span class="whitespace-nowrap font-display text-xl font-semibold text-[#795b42]">{{ item.subtotal | currency:'MXN':'symbol':'1.2-2' }}</span>
+      </div>
+      <div *ngIf="detalleCargando" class="text-sm text-[#ad9583]">Cargando productos del pedido...</div>
+      <div *ngIf="!detalleCargando && detallePedido.length === 0" class="text-sm text-[#ad9583]">No hay productos de detalle disponibles para este pedido.</div>
+    </div>
+
+    <div class="my-8 border-t border-[#eee3da]"></div>
+    <div class="space-y-3">
+      <label for="estadoPedido" class="block text-sm font-semibold text-[#795b42]">Estado del pedido</label>
+      <select id="estadoPedido" [ngModel]="pedidoSeleccionado.estado" (ngModelChange)="cambiarEstado($event)"
+        class="!h-14 !w-full !rounded-xl !border !border-[#e8ded5] !bg-white !px-5 !py-0 !text-sm !font-semibold !text-[#795b42] !shadow-none focus:!border-[#8cc0eb] focus:!ring-2 focus:!ring-[#8cc0eb]/30">
+        <option value="pendiente">Pendiente</option>
+        <option value="en_preparacion">En preparación</option>
+        <option value="completado">Completado</option>
+      </select>
+    </div>
+    <div *ngIf="pedidoSeleccionado.estado !== 'cancelado'" class="mt-6 flex justify-end">
+      <button type="button" (click)="cancelar(pedidoSeleccionado)" class="rounded-lg px-4 py-2 text-xs font-semibold text-[#b77c75] transition hover:bg-[#fbefed]">Cancelar pedido</button>
+    </div>
+  </section>
+</div>

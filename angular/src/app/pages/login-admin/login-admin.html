@@ -1,0 +1,15 @@
+<div class="auth-page">
+    <section class="auth-card"><img class="brand-logo" src="/assets/bubblecookies/bubblecookies-logo.png">
+        <p class="eyebrow">ACCESO DE PERSONAL</p>
+        <h1>Acceso al sistema</h1>
+        <p>Gestiona tu pastelería desde un solo lugar.</p>
+        <div class="auth-note">Ingresa con tu cuenta de administrador, cocina o marketing.</div>
+        <form (ngSubmit)="submit()"><label>Correo electrónico<input type="email" name="correo" [(ngModel)]="correo"
+                    placeholder="tu@correo.com" required></label><label>Contraseña<input type="password" name="password"
+                    [(ngModel)]="password" placeholder="Tu contraseña" required></label>
+            <p class="error-text" *ngIf="error">{{error}}</p><button class="button primary" type="submit">Iniciar sesión
+                →</button>
+        </form>
+        <p>¿Eres cliente? <a routerLink="/login-clientes">Accede a tu cuenta</a></p>
+    </section>
+</div>

@@ -1,0 +1,23 @@
+<div class="page-heading">
+    <div>
+        <h2>Panel de cocina</h2>
+        <p>Control de recetas, materia prima y producción de BubbleCookies.</p>
+    </div><button class="button soft" (click)="load()">Actualizar datos</button>
+</div>
+<div class="stat-grid">
+    <article class="stat-card"><span>Productos</span><strong>{{products.length}}</strong><small>Variedades
+            activas</small></article>
+    <article class="stat-card"><span>Ingredientes</span><strong>{{ingredients.length}}</strong><small>Materias primas
+            disponibles</small></article>
+    <article class="stat-card"><span>Lotes recientes</span><strong>{{productions.length}}</strong><small>Registros de
+            producción</small></article>
+</div>
+<section class="panel">
+    <div class="panel-header">
+        <h2>Herramientas de cocina</h2>
+    </div>
+    <div class="actions-row"><a class="button soft" routerLink="/materia-prima">Materia prima</a><a class="button soft"
+            routerLink="/productos-recetas">Productos y recetas</a><a class="button soft"
+            routerLink="/produccion">Producción</a><a class="button soft" routerLink="/inventario-terminado">Producto
+            terminado</a></div>
+</section>
