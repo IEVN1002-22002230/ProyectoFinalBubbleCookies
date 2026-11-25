@@ -21,6 +21,7 @@ import { AnaliticaMarketing } from './pages/analitica-marketing/analitica-market
 import { ProveedoresCompras } from './pages/proveedores-compras/proveedores-compras';
 import { Cocina } from './pages/cocina/cocina';
 import { MarketingPanel } from './pages/marketing-panel/marketing-panel';
+import { GraciasCompra } from './pages/gracias-compra/gracias-compra';
 
 @NgModule({declarations:[App,
 LoginAdmin,
@@ -38,5 +39,5 @@ GestionClientes,
 AnaliticaMarketing,
 ProveedoresCompras,
 Cocina,
-MarketingPanel],imports:[BrowserModule,CommonModule,FormsModule,AppRoutingModule],providers:[provideBrowserGlobalErrorListeners(),provideHttpClient()],bootstrap:[App]})
+MarketingPanel,GraciasCompra],imports:[BrowserModule,CommonModule,FormsModule,AppRoutingModule],providers:[provideBrowserGlobalErrorListeners(),provideHttpClient()],bootstrap:[App]})
 export class AppModule {}

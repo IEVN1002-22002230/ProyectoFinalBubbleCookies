@@ -43,8 +43,8 @@
     <p>{{error}}</p><button class="button primary" (click)="load()">Reintentar</button>
   </div>
   <div class="product-grid" *ngIf="!loading && !error">
-    <article class="product-card" *ngFor="let p of products; let i = index" [style.--cookie-color]="cookieColor(i)">
-      <div class="product-image"><span>{{p.etiqueta}}</span><img [src]="p.imagen" [alt]="p.nombre"></div>
+    <article class="product-card" *ngFor="let p of products; let i = index" [style.--cookie-color]="validColor(p.color_hex) ? p.color_hex : cookieColor(i)">
+      <div class="product-image"><span>{{p.etiqueta}}</span><img [src]="p.imagen || '/assets/bubblecookies/cookies/bubble-choco.png'" [alt]="p.nombre" (error)="imagenError($event)"></div>
       <div class="product-card-body">
         <h3>{{p.nombre}}</h3>
         <p>{{p.descripcion}}</p>

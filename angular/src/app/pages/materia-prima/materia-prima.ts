@@ -21,9 +21,7 @@ export class MateriaPrima {
 
   form: any = {
     nombre: '',
-    cantidad: 0,
     unidad: 'kg',
-    costo_unitario: 0,
     stock_minimo: 0
   };
 
@@ -65,9 +63,7 @@ export class MateriaPrima {
   nuevo() {
     this.form = {
       nombre: '',
-      cantidad: 0,
       unidad: 'kg',
-      costo_unitario: 0,
       stock_minimo: 0
     };
 
@@ -75,14 +71,19 @@ export class MateriaPrima {
   }
 
   editar(x: any) {
-    this.form = { ...x };
+    this.form = { id_ingrediente: x.id_ingrediente, nombre: x.nombre, unidad: x.unidad, stock_minimo: x.stock_minimo };
     this.showForm = true;
   }
 
   guardar() {
+    const payload = { nombre: String(this.form.nombre || '').trim(), unidad: this.form.unidad, stock_minimo: Number(this.form.stock_minimo || 0) };
+    if (!payload.nombre || !['kg', 'pza', 'L'].includes(payload.unidad)) {
+      this.message = 'Indica un nombre y selecciona una unidad válida (kg, piezas o L).';
+      return;
+    }
     const req = this.form.id_ingrediente
-      ? this.api.put('ingredientes', this.form.id_ingrediente, this.form)
-      : this.api.post('ingredientes', this.form);
+      ? this.api.put('ingredientes', this.form.id_ingrediente, payload)
+      : this.api.post('ingredientes', payload);
 
     req.subscribe({
       next: r => {

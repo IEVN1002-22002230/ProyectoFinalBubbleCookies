@@ -39,6 +39,13 @@ export class ApiService {
       });
   }
 
+
+  uploadProductImage(file: File): Observable<any> {
+    const data = new FormData();
+    data.append('imagen', file);
+    return this.http.post(`${this.base}/upload/producto`, data, { withCredentials: true });
+  }
+
   products(): Observable<any> {
     return this.sync(
       this.http.get(`${this.base}/productos?t=${Date.now()}`, { withCredentials: true })

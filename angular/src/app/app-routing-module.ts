@@ -17,6 +17,7 @@ import { ProveedoresCompras } from './pages/proveedores-compras/proveedores-comp
 import { Cocina } from './pages/cocina/cocina';
 import { MarketingPanel } from './pages/marketing-panel/marketing-panel';
 import { RoleGuard } from './guards/role.guard';
+import { GraciasCompra } from './pages/gracias-compra/gracias-compra';
 
 const routes: Routes = [
   { path: '', redirectTo: 'catalogo', pathMatch: 'full' },
@@ -31,6 +32,7 @@ const routes: Routes = [
   { path: 'inventario-terminado', component: InventarioTerminado, canActivate:[RoleGuard], data:{roles:['superadmin','administrador','cocinero']} },
   { path: 'catalogo', component: Catalogo },
   { path: 'carrito', component: Carrito },
+  { path: 'gracias-compra', component: GraciasCompra },
   { path: 'mis-pedidos', component: MisPedidos },
   { path: 'pedidos-ventas', component: PedidosVentas, canActivate:[RoleGuard], data:{roles:['superadmin','administrador']} },
   { path: 'gestion-clientes', component: GestionClientes, canActivate:[RoleGuard], data:{roles:['superadmin','administrador']} },

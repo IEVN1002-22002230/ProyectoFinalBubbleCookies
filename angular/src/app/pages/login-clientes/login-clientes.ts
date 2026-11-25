@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 
 @Component({
@@ -24,7 +24,11 @@ export class LoginClientes {
   registroError = '';
   registroLoading = false;
 
-  constructor(private api: ApiService, private router: Router) {}
+  private returnUrl = '/catalogo';
+  constructor(private api: ApiService, private router: Router, route: ActivatedRoute) {
+    const requested = route.snapshot.queryParamMap.get('returnUrl');
+    if (requested && requested.startsWith('/') && !requested.startsWith('//')) this.returnUrl = requested;
+  }
 
   submit() {
     this.error = '';
@@ -37,7 +41,7 @@ export class LoginClientes {
       next: r => {
         localStorage.setItem('bubblecookies-customer', JSON.stringify(r.usuario));
         this.loading = false;
-        this.router.navigate(['/catalogo']);
+        this.router.navigateByUrl(this.returnUrl);
       },
       error: e => {
         this.loading = false;
@@ -77,7 +81,7 @@ export class LoginClientes {
         localStorage.setItem('bubblecookies-customer', JSON.stringify(r.usuario));
         this.registroLoading = false;
         this.showRegister = false;
-        this.router.navigate(['/catalogo']);
+        this.router.navigateByUrl(this.returnUrl);
       },
       error: e => {
         this.registroLoading = false;

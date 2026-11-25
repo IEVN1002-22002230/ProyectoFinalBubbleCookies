@@ -58,12 +58,15 @@ export class App {
            this.path === '/login-clientes';
   }
 
+
   get isCustomer() {
     return this.path === '/' ||
-           this.path === '/catalogo' ||
-           this.path === '/carrito' ||
-           this.path === '/mis-pedidos';
+          this.path === '/catalogo' ||
+          this.path === '/carrito' ||
+          this.path === '/mis-pedidos' ||
+          this.path === '/gracias-compra';
   }
+
 
   get adminDestination() {
     return this.user

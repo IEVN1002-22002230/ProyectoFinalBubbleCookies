@@ -1,4 +1,3 @@
-
 import { Component, DestroyRef, inject } from '@angular/core';
 import { interval, merge } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -13,6 +12,7 @@ import { ApiService } from '../../services/api.service';
 export class ProductosRecetas {
 
   private destroyRef = inject(DestroyRef);
+  private previewObjectUrl: string | null = null;
 
   get role() {
     try {
@@ -27,12 +27,13 @@ export class ProductosRecetas {
   products: any[] = [];
   recipes: any[] = [];
   ingredients: any[] = [];
-
   selected: any = null;
 
   showForm = false;
   showRecipeForm = false;
   message = '';
+  selectedImage: File | null = null;
+  imagePreview = '';
 
   form: any = {
     nombre: '',
@@ -66,11 +67,14 @@ export class ProductosRecetas {
 
         if (this.products.length) {
           this.selected = this.products.find(
-            p => p.id_producto === this.selected?.id_producto
+            p => Number(p.id_producto) === Number(this.selected?.id_producto)
           ) || this.products[0];
         } else {
           this.selected = null;
         }
+      },
+      error: e => {
+        this.message = e.error?.mensaje || 'No fue posible cargar los productos.';
       }
     });
 
@@ -95,15 +99,19 @@ export class ProductosRecetas {
 
   get recetaSeleccionada() {
     return this.recipes.find(
-      r => r.id_producto === this.selected?.id_producto
+      r => Number(r.id_producto) === Number(this.selected?.id_producto)
     ) || null;
+  }
+
+  colorProducto(color: string): string {
+    return /^#[0-9A-Fa-f]{6}$/.test(String(color || '')) ? color : '#EDF7FD';
   }
 
   nombreIngrediente(ing: any) {
     return ing.nombre ||
       ing.ingrediente ||
       this.ingredients.find(
-        x => x.id_ingrediente === ing.id_ingrediente
+        x => Number(x.id_ingrediente) === Number(ing.id_ingrediente)
       )?.nombre ||
       'Ingrediente';
   }
@@ -111,43 +119,119 @@ export class ProductosRecetas {
   imagenError(event: Event) {
     const img = event.target as HTMLImageElement;
     img.onerror = null;
-    img.style.visibility = 'hidden';
+    img.src = '/assets/bubblecookies/cookies/bubble-choco.png';
+  }
+
+  private limpiarVistaPrevia() {
+    if (this.previewObjectUrl) {
+      URL.revokeObjectURL(this.previewObjectUrl);
+      this.previewObjectUrl = null;
+    }
   }
 
   nuevo() {
+    this.limpiarVistaPrevia();
     this.form = {
       nombre: '',
       descripcion: '',
       precio: 0,
-      imagen: '/assets/bubblecookies/cookies/',
+      imagen: '',
       color_hex: '#8cc0eb',
       etiqueta: ''
     };
-
+    this.selectedImage = null;
+    this.imagePreview = '';
+    this.message = '';
     this.showForm = true;
   }
 
   editar(p: any) {
+    this.limpiarVistaPrevia();
     this.form = { ...p };
+    this.selectedImage = null;
+    this.imagePreview = p.imagen || '';
+    this.message = '';
     this.showForm = true;
   }
 
-  guardar() {
-    const req = this.form.id_producto
+  seleccionarImagen(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] || null;
+    if (!file) return;
+
+    const formatosPermitidos = ['image/png', 'image/jpeg', 'image/webp'];
+    if (!formatosPermitidos.includes(file.type)) {
+      this.message = 'Formato no válido. Selecciona PNG, JPG o WEBP.';
+      input.value = '';
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.message = 'La imagen no debe superar 5 MB.';
+      input.value = '';
+      return;
+    }
+
+    this.limpiarVistaPrevia();
+    this.selectedImage = file;
+    this.previewObjectUrl = URL.createObjectURL(file);
+    this.imagePreview = this.previewObjectUrl;
+    this.message = '';
+  }
+
+  private guardarProducto() {
+    const esEdicion = !!this.form.id_producto;
+    const solicitud = esEdicion
       ? this.api.put('productos', this.form.id_producto, this.form)
       : this.api.post('productos', this.form);
 
-    req.subscribe({
+    solicitud.subscribe({
       next: r => {
-        this.message = r.mensaje || 'Producto guardado.';
+        this.message = r?.mensaje || 'Producto guardado correctamente.';
         this.showForm = false;
+        this.selectedImage = null;
+        this.limpiarVistaPrevia();
+        this.imagePreview = '';
         this.load();
       },
       error: e => {
-        this.message = e.error?.mensaje ||
-          'No fue posible guardar el producto.';
+        this.message = e.error?.mensaje || 'No fue posible guardar el producto.';
       }
     });
+  }
+
+  guardar() {
+    const hex = String(this.form.color_hex || '').trim();
+    if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+      this.message = 'El color debe tener formato hexadecimal #RRGGBB.';
+      return;
+    }
+
+    this.form.color_hex = hex.toLowerCase();
+    this.message = '';
+
+    // Si el usuario eligió una imagen, primero se sube a Flask.
+    if (this.selectedImage) {
+      this.api.uploadProductImage(this.selectedImage).subscribe({
+        next: r => {
+          if (!r?.imagen) {
+            this.message = 'Flask no devolvió la dirección de la imagen.';
+            return;
+          }
+
+          // La URL se guarda en el campo imagen del producto en MySQL.
+          this.form.imagen = r.imagen;
+          this.guardarProducto();
+        },
+        error: e => {
+          this.message = e.error?.mensaje || 'No se pudo subir la imagen.';
+        }
+      });
+      return;
+    }
+
+    // Si no se seleccionó una imagen nueva, conserva la imagen existente.
+    this.guardarProducto();
   }
 
   nuevaReceta() {
@@ -158,7 +242,6 @@ export class ProductosRecetas {
       instrucciones: '',
       ingredientes: []
     };
-
     this.showRecipeForm = true;
   }
 
@@ -170,6 +253,13 @@ export class ProductosRecetas {
     });
   }
 
+  cambiarIngredienteReceta(ing: any) {
+    const item = this.ingredients.find(
+      x => Number(x.id_ingrediente) === Number(ing.id_ingrediente)
+    );
+    if (item) ing.unidad = item.unidad;
+  }
+
   editarReceta(r: any) {
     this.recipeForm = {
       id_receta: r.id_receta,
@@ -177,11 +267,8 @@ export class ProductosRecetas {
       nombre: r.nombre,
       unidades_por_lote: r.unidades_por_lote,
       instrucciones: r.instrucciones || '',
-      ingredientes: (r.ingredientes || []).map(
-        (x: any) => ({ ...x })
-      )
+      ingredientes: (r.ingredientes || []).map((x: any) => ({ ...x }))
     };
-
     this.showRecipeForm = true;
   }
 
@@ -197,8 +284,7 @@ export class ProductosRecetas {
         this.load();
       },
       error: e => {
-        this.message = e.error?.mensaje ||
-          'No se pudo guardar la receta.';
+        this.message = e.error?.mensaje || 'No se pudo guardar la receta.';
       }
     });
   }
@@ -212,8 +298,7 @@ export class ProductosRecetas {
         this.load();
       },
       error: e => {
-        this.message = e.error?.mensaje ||
-          'No se pudo eliminar la receta.';
+        this.message = e.error?.mensaje || 'No se pudo eliminar la receta.';
       }
     });
   }
@@ -227,10 +312,8 @@ export class ProductosRecetas {
         this.load();
       },
       error: e => {
-        this.message = e.error?.mensaje ||
-          'No fue posible eliminar el producto.';
+        this.message = e.error?.mensaje || 'No fue posible eliminar el producto.';
       }
     });
   }
-
 }

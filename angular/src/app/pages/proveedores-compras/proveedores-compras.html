@@ -236,23 +236,24 @@
 
       <div>
         <label class="mb-2 block text-sm font-medium">Ingrediente</label>
-        <select name="id_ingrediente" [(ngModel)]="purchaseForm.id_ingrediente" required
+        <select name="id_ingrediente" [(ngModel)]="purchaseForm.id_ingrediente"
+          (ngModelChange)="cambiarIngredienteCompra()" required
           class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm text-[#805D49]">
           <option *ngFor="let i of ingredients" [ngValue]="i.id_ingrediente">
-            {{i.nombre}}
+            {{i.nombre}} ({{i.unidad}})
           </option>
         </select>
       </div>
 
       <div>
-        <label class="mb-2 block text-sm font-medium">Cantidad</label>
+        <label class="mb-2 block text-sm font-medium">Cantidad ({{unidadIngredienteSeleccionado}})</label>
         <input type="number" min="0.001" step="0.001" name="cantidad"
           [(ngModel)]="purchaseForm.cantidad" required
           class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm text-[#805D49]">
       </div>
 
       <div>
-        <label class="mb-2 block text-sm font-medium">Costo unitario</label>
+        <label class="mb-2 block text-sm font-medium">Precio por {{unidadIngredienteSeleccionado}} (MXN)</label>
         <input type="number" min="0" step="0.01" name="costo_unitario"
           [(ngModel)]="purchaseForm.costo_unitario" required
           class="block w-full rounded-lg border border-[#EADBD0] bg-white p-2.5 text-sm text-[#805D49]">

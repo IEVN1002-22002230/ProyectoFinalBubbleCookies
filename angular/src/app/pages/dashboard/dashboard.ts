@@ -22,13 +22,9 @@ export class Dashboard {
   pedidosEstado: any[] = [];
   orders: any[] = [];
 
-  galletas: any[] = [
-    { nombre: 'Bubble Choco', imagen: 'bubble-choco.png', color: '#95c3e9', cantidad: 0 },
-    { nombre: 'Double Fresa', imagen: 'double-fresa.png', color: '#f3d3df', cantidad: 0 },
-    { nombre: 'Red Velvet', imagen: 'red-velvet.png', color: '#bd989a', cantidad: 0 },
-    { nombre: 'Butter Cookies', imagen: 'butter-cookies.png', color: '#ecd6a0', cantidad: 0 },
-    { nombre: 'Lemon Glass', imagen: 'lemon-glass.png', color: '#bbc5a7', cantidad: 0 }
-  ];
+  // Se llena exclusivamente con los cinco productos más vendidos
+  // que devuelve Flask. No hay productos iniciales fijos.
+  galletas: any[] = [];
 
   constructor(private api: ApiService) {
     merge(interval(5000), this.api.dataChanged)
@@ -123,13 +119,17 @@ export class Dashboard {
 
   // LAS CONSENTIDAS
   actualizarGalletas(): void {
-    this.galletas = this.galletas.map(galleta => {
-      const producto = this.productosVendidos.find(item =>
-        String(item.nombre || '').toLowerCase().trim() === galleta.nombre.toLowerCase()
-      );
-
-      return { ...galleta, cantidad: this.toNumber(producto?.cantidad) };
-    });
+    this.galletas = (this.productosVendidos || [])
+      .map((producto: any) => ({
+        id_producto: producto.id_producto,
+        nombre: producto.nombre,
+        imagen: producto.imagen || '',
+        color: producto.color || '#95c3e9',
+        cantidad: this.toNumber(producto.cantidad)
+      }))
+      .filter((producto: any) => producto.nombre && producto.cantidad > 0)
+      .sort((a: any, b: any) => b.cantidad - a.cantidad)
+      .slice(0, 5);
   }
 
   getMaxGalletas(): number {
@@ -152,10 +152,27 @@ export class Dashboard {
   }
 
   getProductImage(producto: any): string {
-    if (!producto.imagen) return '';
-    return producto.imagen.startsWith('/assets/')
-      ? producto.imagen
-      : '/assets/bubblecookies/cookies/' + producto.imagen;
+    const imagen = String(producto?.imagen || '').trim();
+    if (!imagen) return '';
+
+    // URLs completas (por ejemplo, imágenes servidas por Flask).
+    if (/^https?:\/\//i.test(imagen)) return imagen;
+
+    // Las imágenes guardadas en Flask deben solicitarse al puerto 5000,
+    // no al servidor de desarrollo de Angular (4200).
+    if (imagen.startsWith('/uploads/')) {
+      return 'http://localhost:5000' + imagen;
+    }
+    if (imagen.startsWith('uploads/')) {
+      return 'http://localhost:5000/' + imagen;
+    }
+
+    // Recursos que ya pertenecen a Angular.
+    if (imagen.startsWith('/assets/')) return imagen;
+    if (imagen.startsWith('assets/')) return '/' + imagen;
+
+    // Compatibilidad con nombres de imágenes del catálogo anterior.
+    return '/assets/bubblecookies/cookies/' + imagen;
   }
 
   // ESTADOS DE PEDIDOS

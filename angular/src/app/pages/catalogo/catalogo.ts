@@ -35,6 +35,8 @@ export class Catalogo implements OnInit {
   previousStory() { this.storyIndex = (this.storyIndex + this.stories.length - 1) % this.stories.length; }
   nextStory() { this.storyIndex = (this.storyIndex + 1) % this.stories.length; }
   cookieColor(index: number) { return ['#d8eaf8', '#f6e5ef', '#f2e1dc', '#f0edda', '#e7f1e8'][index % 5]; }
+  validColor(value: string) { return /^#[0-9a-fA-F]{6}$/.test(String(value || '')); }
+  imagenError(event: Event) { const img = event.target as HTMLImageElement; img.onerror = null; img.src = '/assets/bubblecookies/cookies/bubble-choco.png'; }
 
   ngOnInit() {
     this.load();

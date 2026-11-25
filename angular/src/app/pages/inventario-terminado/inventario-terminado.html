@@ -107,6 +107,7 @@
                 <img
                   [src]="imagenProducto(p)"
                   [alt]="p.nombre"
+                  [style.backgroundColor]="p.color_hex || '#FFF0B8'"
                   (error)="imagenError($event)"
                   class="h-11 w-11 rounded-full object-cover">
 

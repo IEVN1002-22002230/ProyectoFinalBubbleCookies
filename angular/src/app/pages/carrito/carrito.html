@@ -89,6 +89,17 @@
       <label class="block text-sm font-semibold text-[#76543e]">Mensaje de regalo <span class="font-normal text-[#b2937d]">(opcional)</span>
         <textarea name="mensaje_regalo" [(ngModel)]="order.mensaje_regalo" rows="2" placeholder="Agrega un mensaje especial..." class="mt-2 w-full resize-y rounded-xl border border-[#ead9cc] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#86bce7] focus:ring-4 focus:ring-[#86bce7]/20"></textarea>
       </label>
+      <label class="block text-sm font-semibold text-[#76543e]">Método de pago
+        <select name="metodo_pago" [(ngModel)]="order.metodo_pago" class="mt-2 w-full rounded-xl border border-[#ead9cc] bg-white px-4 py-3 text-sm outline-none focus:border-[#86bce7]">
+          <option value="efectivo">Efectivo</option><option value="tarjeta">Tarjeta (simulación)</option>
+        </select>
+      </label>
+      <div *ngIf="order.metodo_pago === 'tarjeta'" class="space-y-3 rounded-xl border border-[#ead9cc] bg-[#fff8f1] p-4">
+        <p class="text-xs leading-5 text-[#a1816b]">Pago de demostración: no se realizará ningún cargo. Los datos de esta tarjeta no se enviarán ni se guardarán.</p>
+        <label class="block text-sm font-semibold text-[#76543e]">Titular<input name="tarjeta_titular" [(ngModel)]="tarjetaDemo.titular" autocomplete="off" class="mt-1 w-full rounded-lg border border-[#ead9cc] bg-white px-3 py-2"></label>
+        <label class="block text-sm font-semibold text-[#76543e]">Número de tarjeta de prueba<input name="tarjeta_numero" [(ngModel)]="tarjetaDemo.numero" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="Solo demostración" class="mt-1 w-full rounded-lg border border-[#ead9cc] bg-white px-3 py-2"></label>
+        <div class="grid grid-cols-2 gap-3"><label class="block text-sm font-semibold text-[#76543e]">Vencimiento<input name="tarjeta_vencimiento" [(ngModel)]="tarjetaDemo.vencimiento" placeholder="MM/AA" autocomplete="off" maxlength="5" class="mt-1 w-full rounded-lg border border-[#ead9cc] bg-white px-3 py-2"></label><label class="block text-sm font-semibold text-[#76543e]">CVV<input name="tarjeta_cvv" [(ngModel)]="tarjetaDemo.cvv" inputmode="numeric" autocomplete="off" maxlength="4" class="mt-1 w-full rounded-lg border border-[#ead9cc] bg-white px-3 py-2"></label></div>
+      </div>
       <div class="flex items-center justify-between rounded-xl bg-[#fcf6ef] px-4 py-3">
         <span class="text-sm font-semibold text-[#8a6348]">Total a pagar</span>
         <strong class="text-xl font-bold text-[#76543e]">{{cart.total | currency:'MXN':'symbol':'1.2-2'}}</strong>
@@ -118,10 +129,10 @@
       Para confirmar tu pedido necesitas iniciar sesión en tu cuenta. Tus productos seguirán en el carrito.
     </p>
     <div class="mt-7 flex justify-end">
-      <button type="button" (click)="closeLoginRequired()"
-        class="w-full rounded-xl bg-[#86bce7] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#6da9da] sm:w-auto">
-        Entendido
-      </button>
+      <div class="flex w-full flex-col gap-3 sm:flex-row sm:justify-end">
+        <button type="button" (click)="closeLoginRequired()" class="rounded-xl border border-[#ead9cc] px-5 py-3 text-sm font-semibold text-[#8a6348]">Ahora no</button>
+        <button type="button" (click)="goToCustomerLogin()" class="rounded-xl bg-[#86bce7] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#6da9da]">Iniciar sesión</button>
+      </div>
     </div>
   </section>
 </div>

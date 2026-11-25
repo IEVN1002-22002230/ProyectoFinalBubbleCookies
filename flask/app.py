@@ -3,9 +3,10 @@ import os
 from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify, request, session
+from flask import Flask, jsonify, request, session, send_from_directory
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 
 load_dotenv()
 
@@ -18,6 +19,25 @@ CORS(app, supports_credentials=True, origins=[
     'http://localhost:4200',
     'http://127.0.0.1:4200'
 ])
+
+
+# Unidades normalizadas para inventario y producción.
+UNIDADES = {
+    'kg': ('masa', 1000.0), 'g': ('masa', 1.0), 'mg': ('masa', 0.001),
+    'L': ('volumen', 1000.0), 'ml': ('volumen', 1.0),
+    'cuchara': ('volumen', 15.0), 'cda': ('volumen', 15.0), 'cdita': ('volumen', 5.0),
+    'pza': ('pieza', 1.0), 'pz': ('pieza', 1.0),
+}
+
+def convertir_unidad(cantidad, unidad_origen, unidad_destino):
+    origen = UNIDADES.get(str(unidad_origen))
+    destino = UNIDADES.get(str(unidad_destino))
+    if not origen or not destino or origen[0] != destino[0]:
+        raise ValueError(
+            f'Unidades incompatibles: {unidad_origen} y {unidad_destino}. '
+            'Usa kg/g/mg, L/ml o pza.'
+        )
+    return float(cantidad) * origen[1] / destino[1]
 
 
 # ============================================================
@@ -66,11 +86,15 @@ def role_access_control():
 
     if (path in ['/api/auth/admin', '/api/auth/cliente', '/api/auth/registro-cliente', '/api/auth/logout', '/api/test-db']
         or (path == '/api/productos' and request.method == 'GET')
-        or path.startswith('/api/carrito/')
-        or (path == '/api/pedidos' and request.method == 'POST')):
+        or path.startswith('/api/carrito/')):
         return None
 
     user = session.get('bubble_user')
+
+    if path == '/api/pedidos' and request.method == 'POST':
+        if not user or user.get('rol') != 'cliente' or not user.get('id_cliente'):
+            return jsonify({'mensaje': 'Debes iniciar sesión como cliente para realizar una compra.'}), 401
+        return None
 
     if not user:
         return jsonify({
@@ -292,20 +316,28 @@ def dashboard():
                 'pedidos': int(item.get('pedidos') or 0)
             })
 
+        # Los cinco productos del catálogo con más unidades vendidas durante los últimos 7 días.
+        # Se excluyen artículos personalizados o históricos sin id_producto y productos sin imagen.
+        # INNER JOIN garantiza que cada resultado corresponda a un producto real del catálogo.
         productos_vendidos = rows("""
-            SELECT dp.nombre_producto nombre,
-                   SUM(dp.cantidad) cantidad,
-                   MAX(pr.imagen) imagen,
-                   MAX(pr.color_hex) color
+            SELECT dp.id_producto,
+                   MAX(pr.nombre) AS nombre,
+                   SUM(dp.cantidad) AS cantidad,
+                   MAX(pr.imagen) AS imagen,
+                   MAX(pr.color_hex) AS color
             FROM detalle_pedidos dp
             INNER JOIN pedidos p
                 ON dp.id_pedido = p.id_pedido
-            LEFT JOIN productos pr
+            INNER JOIN productos pr
                 ON dp.id_producto = pr.id_producto
             WHERE p.estado <> 'cancelado'
               AND p.fecha_pedido >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
-            GROUP BY dp.nombre_producto
-            ORDER BY cantidad DESC
+              AND dp.id_producto IS NOT NULL
+              AND pr.imagen IS NOT NULL
+              AND TRIM(pr.imagen) <> ''
+            GROUP BY dp.id_producto
+            HAVING SUM(dp.cantidad) > 0
+            ORDER BY cantidad DESC, nombre ASC
             LIMIT 5
         """)
 
@@ -378,16 +410,13 @@ def ingrediente_add():
     try:
         d = request.get_json()
 
+        unidad = d.get('unidad')
+        if unidad not in ('kg', 'pza', 'L'):
+            return jsonify({'mensaje': 'La unidad debe ser kg, pza o L.'}), 400
         i = execute(
             'INSERT INTO ingredientes(nombre,cantidad,unidad,costo_unitario,stock_minimo) '
-            'VALUES(%s,%s,%s,%s,%s)',
-            (
-                d['nombre'],
-                d.get('cantidad', 0),
-                d['unidad'],
-                d.get('costo_unitario', 0),
-                d.get('stock_minimo', 0)
-            )
+            'VALUES(%s,0,%s,0,%s)',
+            (d['nombre'].strip(), unidad, d.get('stock_minimo', 0))
         )
 
         return jsonify({'id': i, 'mensaje': 'Ingrediente registrado'})
@@ -401,17 +430,12 @@ def ingrediente_edit(i):
     try:
         d = request.get_json()
 
+        unidad = d.get('unidad')
+        if unidad not in ('kg', 'pza', 'L'):
+            return jsonify({'mensaje': 'La unidad debe ser kg, pza o L.'}), 400
         execute(
-            'UPDATE ingredientes SET nombre=%s,cantidad=%s,unidad=%s,'
-            'costo_unitario=%s,stock_minimo=%s WHERE id_ingrediente=%s',
-            (
-                d['nombre'],
-                d['cantidad'],
-                d['unidad'],
-                d['costo_unitario'],
-                d.get('stock_minimo', 0),
-                i
-            )
+            'UPDATE ingredientes SET nombre=%s,unidad=%s,stock_minimo=%s WHERE id_ingrediente=%s',
+            (d['nombre'].strip(), unidad, d.get('stock_minimo', 0), i)
         )
 
         return jsonify({'mensaje': 'Ingrediente actualizado'})
@@ -488,7 +512,7 @@ def produccion_add():
             # Consultar ingredientes necesarios
             c.execute(
                 'SELECT dr.id_ingrediente, dr.cantidad, dr.unidad, '
-                'i.nombre, i.cantidad AS existencia, i.costo_unitario '
+                'i.nombre, i.cantidad AS existencia, i.unidad AS unidad_stock, i.costo_unitario '
                 'FROM detalle_recetas dr '
                 'JOIN ingredientes i USING(id_ingrediente) '
                 'WHERE dr.id_receta=%s FOR UPDATE',
@@ -505,14 +529,15 @@ def produccion_add():
 
             # Verificar existencias
             for n in needs:
-                required = float(n['cantidad']) * lots
-
+                required = convertir_unidad(
+                    float(n['cantidad']) * lots, n['unidad'], n['unidad_stock']
+                )
                 if float(n['existencia']) < required:
                     con.rollback()
                     return jsonify({
                         'mensaje': (
                             f"Materia prima insuficiente: {n['nombre']}. "
-                            f"Necesitas {required:g} {n['unidad']} "
+                            f"Necesitas {required:g} {n['unidad_stock']} "
                             f"y tienes {float(n['existencia']):g}."
                         )
                     }), 409
@@ -543,9 +568,9 @@ def produccion_add():
 
             # Descontar materia prima
             for n in needs:
-                required = round(
-                    float(n['cantidad']) * lots, 3
-                )
+                required = round(convertir_unidad(
+                    float(n['cantidad']) * lots, n['unidad'], n['unidad_stock']
+                ), 3)
 
                 old = float(n['existencia'])
                 new = round(old - required, 3)
@@ -567,7 +592,7 @@ def produccion_add():
                         production_id,
                         n['id_ingrediente'],
                         required,
-                        n['unidad'],
+                        n['unidad_stock'],
                         n['costo_unitario']
                     )
                 )
@@ -1067,7 +1092,13 @@ def pedido_create():
     con = None
 
     try:
-        d = request.get_json()
+        cliente_sesion = session.get('bubble_user') or {}
+        if cliente_sesion.get('rol') != 'cliente' or not cliente_sesion.get('id_cliente'):
+            return jsonify({'mensaje': 'Debes iniciar sesión como cliente para realizar una compra.'}), 401
+        d = request.get_json() or {}
+        metodo_pago = d.get('metodo_pago')
+        if metodo_pago not in ('efectivo', 'tarjeta'):
+            return jsonify({'mensaje': 'Selecciona efectivo o tarjeta.'}), 400
         token = 'bubblecookies-session'
         con = get_connection()
 
@@ -1099,16 +1130,15 @@ def pedido_create():
             )
             code = 'BC-' + datetime.now().strftime('%y%m%d%H%M%S')
 
-            cliente_sesion = session.get('bubble_user') or {}
-            id_cliente = cliente_sesion.get('id_cliente') if cliente_sesion.get('rol') == 'cliente' else None
+            id_cliente = cliente_sesion.get('id_cliente')
             nombre_cliente = d.get('nombre_cliente') or cliente_sesion.get('nombre') or 'Cliente'
             correo_cliente = d.get('correo_cliente') or cliente_sesion.get('correo')
 
             c.execute(
                 "INSERT INTO pedidos("
                 "codigo_pedido,id_cliente,nombre_cliente,correo_cliente,telefono_cliente,"
-                "direccion_entrega,subtotal,total,estado,mensaje_regalo,es_demo) "
-                "VALUES(%s,%s,%s,%s,%s,%s,%s,%s,'pendiente',%s,0)",
+                "direccion_entrega,subtotal,total,estado,mensaje_regalo,metodo_pago,es_demo) "
+                "VALUES(%s,%s,%s,%s,%s,%s,%s,%s,'pendiente',%s,%s,0)",
                 (
                     code,
                     id_cliente,
@@ -1118,7 +1148,8 @@ def pedido_create():
                     d.get('direccion_entrega'),
                     subtotal,
                     subtotal,
-                    d.get('mensaje_regalo')
+                    d.get('mensaje_regalo'),
+                    metodo_pago
                 )
             )
             oid = c.lastrowid
@@ -1406,6 +1437,61 @@ def ingrediente_delete(i):
     finally:
         if con:
             con.close()
+
+
+# ============================================================
+@app.get('/uploads/<path:nombre>')
+def servir_imagen_producto(nombre):
+    # Las imágenes se sirven desde Flask, no desde los assets compilados de Angular.
+    carpeta = os.path.join(os.path.dirname(__file__), 'uploads')
+    response = send_from_directory(carpeta, nombre, max_age=0)
+    # Evita que el navegador conserve una imagen anterior en caché.
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
+
+# CARGA DE IMAGENES DE PRODUCTOS
+# ============================================================
+
+@app.post('/api/upload/producto')
+def subir_imagen_producto():
+    try:
+        archivo = request.files.get('imagen')
+        if not archivo or not archivo.filename:
+            return jsonify({'mensaje': 'Selecciona una imagen.'}), 400
+
+        extension = os.path.splitext(secure_filename(archivo.filename))[1].lower()
+        extensiones_permitidas = {'.png', '.jpg', '.jpeg', '.webp'}
+        if extension not in extensiones_permitidas:
+            return jsonify({'mensaje': 'Formato no permitido. Usa PNG, JPG o WEBP.'}), 400
+
+        # Comprobación previa del tamaño y comprobación real después de guardar.
+        limite_bytes = 5 * 1024 * 1024
+        if request.content_length and request.content_length > limite_bytes + 1024 * 64:
+            return jsonify({'mensaje': 'La imagen no debe superar 5 MB.'}), 413
+
+        carpeta = os.path.join(os.path.dirname(__file__), 'uploads')
+        os.makedirs(carpeta, exist_ok=True)
+
+        # Nombre único para que una imagen nueva nunca reutilice la caché de otra.
+        nombre = f"producto_{datetime.now().strftime('%Y%m%d%H%M%S%f')}{extension}"
+        ruta_archivo = os.path.join(carpeta, nombre)
+        archivo.save(ruta_archivo)
+
+        if os.path.getsize(ruta_archivo) > limite_bytes:
+            os.remove(ruta_archivo)
+            return jsonify({'mensaje': 'La imagen no debe superar 5 MB.'}), 413
+
+        url_imagen = f'http://localhost:5000/uploads/{nombre}'
+        return jsonify({
+            'imagen': url_imagen,
+            'mensaje': 'Imagen cargada correctamente.'
+        }), 201
+
+    except Exception as e:
+        return fail(e)
 
 
 # ============================================================
@@ -2158,6 +2244,9 @@ def compra_add():
         con = get_connection()
 
         with con.cursor() as c:
+            for x in detalles:
+                if float(x.get('cantidad', 0)) <= 0 or float(x.get('costo_unitario', -1)) < 0:
+                    raise ValueError('La cantidad debe ser mayor a cero y el precio unitario no puede ser negativo.')
             total = sum(
                 float(x['cantidad']) * float(x['costo_unitario'])
                 for x in detalles

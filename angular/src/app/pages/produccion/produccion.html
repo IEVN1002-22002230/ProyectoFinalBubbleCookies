@@ -91,16 +91,11 @@
         <div class="flex items-center gap-4 rounded-xl bg-[#FFF8EC] p-4">
 
           <img
-            *ngIf="productoSeleccionado?.imagen"
-            [src]="productoSeleccionado.imagen"
-            [alt]="productoSeleccionado.nombre"
-            class="h-20 w-20 rounded-full object-cover">
-
-          <div
-            *ngIf="!productoSeleccionado?.imagen"
-            class="flex h-20 w-20 items-center justify-center rounded-full bg-[#FFF0B8] text-3xl">
-            🍪
-          </div>
+            [src]="productoSeleccionado?.imagen || '/assets/bubblecookies/cookies/bubble-choco.png'"
+            [alt]="productoSeleccionado?.nombre || 'Producto'"
+            (error)="imagenError($event)"
+            [style.backgroundColor]="productoSeleccionado?.color_hex || '#FFF0B8'"
+            class="h-20 w-20 rounded-full object-contain p-1">
 
           <div>
             <p class="text-2xl font-bold">

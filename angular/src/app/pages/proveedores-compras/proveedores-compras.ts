@@ -37,6 +37,19 @@ export class ProveedoresCompras {
     correo: ''
   };
 
+  cambiarIngredienteCompra() {
+    const item = this.ingredients.find(x =>
+      Number(x.id_ingrediente) === Number(this.purchaseForm.id_ingrediente)
+    );
+    if (item) this.purchaseForm.costo_unitario = Number(item.costo_unitario || 0);
+  }
+
+  get unidadIngredienteSeleccionado(): string {
+    return this.ingredients.find(x =>
+      Number(x.id_ingrediente) === Number(this.purchaseForm.id_ingrediente)
+    )?.unidad || 'unidad';
+  }
+
   constructor(private api: ApiService) {
     merge(interval(5000), this.api.dataChanged)
       .pipe(takeUntilDestroyed(this.destroyRef))

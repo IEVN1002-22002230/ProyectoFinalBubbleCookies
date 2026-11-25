@@ -2,6 +2,7 @@ import { Component, DestroyRef, inject, ChangeDetectorRef } from '@angular/core'
 import { interval, merge } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiService } from '../../services/api.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-carrito',
@@ -23,10 +24,12 @@ export class Carrito {
     correo_cliente: '',
     telefono_cliente: '',
     direccion_entrega: '',
-    mensaje_regalo: ''
+    mensaje_regalo: '',
+    metodo_pago: 'efectivo'
   };
+  tarjetaDemo: any = { titular: '', numero: '', vencimiento: '', cvv: '' };
 
-  constructor(private api: ApiService) {
+  constructor(private api: ApiService, private router: Router) {
     const customer = this.getLoggedCustomer();
     if (customer) {
       this.order.nombre_cliente = [customer.nombre, customer.apellidos].filter(Boolean).join(' ');
@@ -59,6 +62,11 @@ export class Carrito {
 
   closeLoginRequired() {
     this.loginRequired = false;
+  }
+
+  goToCustomerLogin() {
+    this.loginRequired = false;
+    this.router.navigate(['/login-clientes'], { queryParams: { returnUrl: '/carrito' } });
   }
 
   load() {
@@ -128,13 +136,22 @@ export class Carrito {
       this.message = 'Escribe el nombre de la persona que recibirá el pedido.';
       return;
     }
+    if (this.order.metodo_pago === 'tarjeta') {
+      const numero = String(this.tarjetaDemo.numero || '').replace(/\s/g, '');
+      if (!this.tarjetaDemo.titular.trim() || !/^\d{13,19}$/.test(numero) || !/^\d{2}\/\d{2}$/.test(this.tarjetaDemo.vencimiento) || !/^\d{3,4}$/.test(this.tarjetaDemo.cvv)) {
+        this.message = 'Completa los datos de la tarjeta de demostración. No se almacenarán ni se enviarán al servidor.';
+        return;
+      }
+    }
     this.submitting = true;
-    this.api.checkout(this.order).subscribe({
+    // Solo se envía el método de pago. Los datos simulados de tarjeta nunca salen del formulario.
+    const payload = { ...this.order, metodo_pago: this.order.metodo_pago };
+    this.api.checkout(payload).subscribe({
       next: r => {
-        this.message = r.mensaje || '¡Tu pedido fue registrado correctamente!';
         this.showCheckout = false;
         this.submitting = false;
-        this.order.mensaje_regalo = '';
+        this.tarjetaDemo = { titular: '', numero: '', vencimiento: '', cvv: '' };
+        this.router.navigate(['/gracias-compra'], { queryParams: { pedido: r.codigo_pedido || '' } });
         this.load();
         this.cdr.detectChanges();
       },
