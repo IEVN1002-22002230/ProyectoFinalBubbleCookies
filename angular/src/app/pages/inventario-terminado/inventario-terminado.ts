@@ -88,18 +88,18 @@ export class InventarioTerminado {
 
     const nombre = (p.nombre || '').toLowerCase();
 
-    if (nombre.includes('choco')) return '/assets/bubblecookies/cookies/bubble-choco.png';
-    if (nombre.includes('fresa')) return '/assets/bubblecookies/cookies/double-fresa.png';
-    if (nombre.includes('red velvet')) return '/assets/bubblecookies/cookies/red-velvet.png';
-    if (nombre.includes('butter')) return '/assets/bubblecookies/cookies/butter-cookies.png';
-    if (nombre.includes('lemon')) return '/assets/bubblecookies/cookies/lemon-glass.png';
+    if (nombre.includes('choco')) return 'assets/bubblecookies/cookies/bubble-choco.png';
+    if (nombre.includes('fresa')) return 'assets/bubblecookies/cookies/double-fresa.png';
+    if (nombre.includes('red velvet')) return 'assets/bubblecookies/cookies/red-velvet.png';
+    if (nombre.includes('butter')) return 'assets/bubblecookies/cookies/butter-cookies.png';
+    if (nombre.includes('lemon')) return 'assets/bubblecookies/cookies/lemon-glass.png';
 
-    return '/assets/bubblecookies/cookies/bubble-choco.png';
+    return 'assets/bubblecookies/cookies/bubble-choco.png';
   }
 
   imagenError(event: Event) {
     const img = event.target as HTMLImageElement;
     img.onerror = null;
-    img.src = '/assets/bubblecookies/cookies/bubble-choco.png';
+    img.src = 'assets/bubblecookies/cookies/bubble-choco.png';
   }
 }

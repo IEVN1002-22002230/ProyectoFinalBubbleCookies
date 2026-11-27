@@ -40,7 +40,7 @@
         : 'border-[#EADBD0] bg-white hover:bg-[#FFF9F5]'"
       class="flex min-h-20 items-center gap-3 rounded-lg border p-3 text-left transition">
 
-      <img [src]="p.imagen || '/assets/bubblecookies/cookies/bubble-choco.png'" [alt]="p.nombre" [style.backgroundColor]="colorProducto(p.color_hex)"
+      <img [src]="p.imagen || 'assets/bubblecookies/cookies/bubble-choco.png'" [alt]="p.nombre" [style.backgroundColor]="colorProducto(p.color_hex)"
         class="h-12 w-12 rounded-full object-cover"
         (error)="imagenError($event)">
 
@@ -54,7 +54,7 @@
     <!-- TARJETA DE GALLETA -->
     <section class="rounded-xl p-6 text-center lg:col-span-2" [style.backgroundColor]="colorProducto(selected.color_hex)">
 
-      <img [src]="selected.imagen || '/assets/bubblecookies/cookies/bubble-choco.png'" [alt]="selected.nombre" [style.backgroundColor]="colorProducto(selected.color_hex)"
+      <img [src]="selected.imagen || 'assets/bubblecookies/cookies/bubble-choco.png'" [alt]="selected.nombre" [style.backgroundColor]="colorProducto(selected.color_hex)"
         (error)="imagenError($event)"
         class="mx-auto h-48 w-48 object-contain md:h-56 md:w-56">
 

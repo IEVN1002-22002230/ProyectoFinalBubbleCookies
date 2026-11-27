@@ -3,7 +3,7 @@
   <div *ngIf="isCustomer; else adminFrame"
     class="customer-layout flex min-h-screen flex-col bg-stone-50 text-stone-700">
     <header class="customer-header">
-      <a routerLink="/catalogo"><img class="brand-logo" src="/assets/bubblecookies/bubblecookies-logo.png"
+      <a routerLink="/catalogo"><img class="brand-logo" src="assets/bubblecookies/bubblecookies-logo.png"
           alt="BubbleCookies"></a>
       <nav class="flex flex-wrap items-center gap-4"><a routerLink="/catalogo" routerLinkActive="active">Tienda</a><a routerLink="/carrito"
           routerLinkActive="active">Mi carrito <span class="badge blue">{{cartCount}}</span></a><a *ngIf="customer" routerLink="/mis-pedidos" routerLinkActive="active">Mis pedidos</a></nav>
@@ -13,7 +13,7 @@
     <main class="customer-main w-full flex-none overflow-visible"><router-outlet></router-outlet></main>
     <footer class="customer-footer">
       <a class="footer-brand" routerLink="/catalogo"><img class="brand-logo"
-          src="/assets/bubblecookies/bubblecookies-logo.png" alt="BubbleCookies"></a>
+          src="assets/bubblecookies/bubblecookies-logo.png" alt="BubbleCookies"></a>
       <span>Pequeñas galletas. Grandes momentos.</span>
       <a class="footer-admin" [routerLink]="adminDestination">Administración <span aria-hidden="true">→</span></a>
       <small>© 2025 BubbleCookies · Hecho con amor.</small>
@@ -22,7 +22,7 @@
   <ng-template #adminFrame>
     <div class="admin-layout min-h-screen">
       <aside class="admin-sidebar">
-        <img class="brand-logo" src="/assets/bubblecookies/bubblecookies-logo.png" alt="BubbleCookies">
+        <img class="brand-logo" src="assets/bubblecookies/bubblecookies-logo.png" alt="BubbleCookies">
         <div class="workspace"><span class="workspace-icon">✿</span><span>Mi pastelería<small>Panel de
               administración</small></span></div>
         <nav>

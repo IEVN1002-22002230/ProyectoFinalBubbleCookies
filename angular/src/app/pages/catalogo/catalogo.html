@@ -20,11 +20,11 @@
     <div class="cookie-spark spark-one">✧</div>
     <div class="cookie-spark spark-two">✦</div>
     <span class="art-sticker">hechas<br>con amor <b>♥</b></span>
-    <img class="hero-cookie hero-cookie-main" src="/assets/bubblecookies/cookies/bubble-choco.png"
+    <img class="hero-cookie hero-cookie-main" src="assets/bubblecookies/cookies/bubble-choco.png"
       alt="Galleta de chocolate con chispas">
-    <img class="hero-cookie hero-cookie-fresa" src="/assets/bubblecookies/cookies/double-fresa.png"
+    <img class="hero-cookie hero-cookie-fresa" src="assets/bubblecookies/cookies/double-fresa.png"
       alt="Galleta de fresa">
-    <img class="hero-cookie hero-cookie-limon" src="/assets/bubblecookies/cookies/lemon-glass.png"
+    <img class="hero-cookie hero-cookie-limon" src="assets/bubblecookies/cookies/lemon-glass.png"
       alt="Galleta de limón">
     <span class="art-caption">Un mordisco y ya estás en casa.</span>
   </div>
@@ -44,7 +44,7 @@
   </div>
   <div class="product-grid" *ngIf="!loading && !error">
     <article class="product-card" *ngFor="let p of products; let i = index" [style.--cookie-color]="validColor(p.color_hex) ? p.color_hex : cookieColor(i)">
-      <div class="product-image"><span>{{p.etiqueta}}</span><img [src]="p.imagen || '/assets/bubblecookies/cookies/bubble-choco.png'" [alt]="p.nombre" (error)="imagenError($event)"></div>
+      <div class="product-image"><span>{{p.etiqueta}}</span><img [src]="p.imagen || 'assets/bubblecookies/cookies/bubble-choco.png'" [alt]="p.nombre" (error)="imagenError($event)"></div>
       <div class="product-card-body">
         <h3>{{p.nombre}}</h3>
         <p>{{p.descripcion}}</p>

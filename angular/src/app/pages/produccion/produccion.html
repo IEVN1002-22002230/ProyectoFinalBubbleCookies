@@ -91,7 +91,7 @@
         <div class="flex items-center gap-4 rounded-xl bg-[#FFF8EC] p-4">
 
           <img
-            [src]="productoSeleccionado?.imagen || '/assets/bubblecookies/cookies/bubble-choco.png'"
+            [src]="productoSeleccionado?.imagen || 'assets/bubblecookies/cookies/bubble-choco.png'"
             [alt]="productoSeleccionado?.nombre || 'Producto'"
             (error)="imagenError($event)"
             [style.backgroundColor]="productoSeleccionado?.color_hex || '#FFF0B8'"

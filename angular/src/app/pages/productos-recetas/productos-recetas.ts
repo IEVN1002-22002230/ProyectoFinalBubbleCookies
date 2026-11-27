@@ -119,7 +119,7 @@ export class ProductosRecetas {
   imagenError(event: Event) {
     const img = event.target as HTMLImageElement;
     img.onerror = null;
-    img.src = '/assets/bubblecookies/cookies/bubble-choco.png';
+    img.src = 'assets/bubblecookies/cookies/bubble-choco.png';
   }
 
   private limpiarVistaPrevia() {

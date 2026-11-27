@@ -24,9 +24,9 @@ export class Catalogo implements OnInit {
   private addedThisSession: Record<number, number> = {};
   private loaded = false;
   readonly stories = [
-    { image: '/assets/bubblecookies/cookies/bubble-choco.png', title: 'Más que galletas, horneamos recuerdos.', first: 'BubbleCookies nació de una idea sencilla: los mejores momentos se comparten. Por eso, elegimos cada ingrediente con cuidado y preparamos cada lote a mano, como en casa.', second: 'Una pausa, un regalo o un “pensé en ti”. Siempre hay una buena razón para compartir algo dulce.', sign: 'Con amor, BubbleCookies' },
-    { image: '/assets/bubblecookies/cookies/double-fresa.png', title: 'Un detalle dulce dice mucho.', first: 'Cada galleta se prepara con paciencia y buenos ingredientes, para acompañar esos momentos que quieres guardar.', second: 'Hechas para regalar, compartir y disfrutar sin prisa.', sign: 'Con cariño, BubbleCookies' },
-    { image: '/assets/bubblecookies/cookies/lemon-glass.png', title: 'Pequeñas galletas. Grandes momentos.', first: 'Nos inspiran las recetas de casa, los sabores frescos y la alegría de compartir algo recién horneado.', second: 'Gracias por hacerle un espacio a BubbleCookies en tu mesa.', sign: 'Siempre recién horneadas' }
+    { image: 'assets/bubblecookies/cookies/bubble-choco.png', title: 'Más que galletas, horneamos recuerdos.', first: 'BubbleCookies nació de una idea sencilla: los mejores momentos se comparten. Por eso, elegimos cada ingrediente con cuidado y preparamos cada lote a mano, como en casa.', second: 'Una pausa, un regalo o un “pensé en ti”. Siempre hay una buena razón para compartir algo dulce.', sign: 'Con amor, BubbleCookies' },
+    { image: 'assets/bubblecookies/cookies/double-fresa.png', title: 'Un detalle dulce dice mucho.', first: 'Cada galleta se prepara con paciencia y buenos ingredientes, para acompañar esos momentos que quieres guardar.', second: 'Hechas para regalar, compartir y disfrutar sin prisa.', sign: 'Con cariño, BubbleCookies' },
+    { image: 'assets/bubblecookies/cookies/lemon-glass.png', title: 'Pequeñas galletas. Grandes momentos.', first: 'Nos inspiran las recetas de casa, los sabores frescos y la alegría de compartir algo recién horneado.', second: 'Gracias por hacerle un espacio a BubbleCookies en tu mesa.', sign: 'Siempre recién horneadas' }
   ];
   storyIndex = 0;
 
@@ -36,7 +36,7 @@ export class Catalogo implements OnInit {
   nextStory() { this.storyIndex = (this.storyIndex + 1) % this.stories.length; }
   cookieColor(index: number) { return ['#d8eaf8', '#f6e5ef', '#f2e1dc', '#f0edda', '#e7f1e8'][index % 5]; }
   validColor(value: string) { return /^#[0-9a-fA-F]{6}$/.test(String(value || '')); }
-  imagenError(event: Event) { const img = event.target as HTMLImageElement; img.onerror = null; img.src = '/assets/bubblecookies/cookies/bubble-choco.png'; }
+  imagenError(event: Event) { const img = event.target as HTMLImageElement; img.onerror = null; img.src = 'assets/bubblecookies/cookies/bubble-choco.png'; }
 
   ngOnInit() {
     this.load();

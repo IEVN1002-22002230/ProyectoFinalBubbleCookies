@@ -99,7 +99,7 @@ export class Carrito {
   }
 
   imageFor(item: any): string {
-    return item?.imagen || '/assets/bubblecookies/cookies/bubble-choco.png';
+    return item?.imagen || 'assets/bubblecookies/cookies/bubble-choco.png';
   }
 
   change(x: any, delta: number) {

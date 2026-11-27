@@ -168,11 +168,10 @@ export class Dashboard {
     }
 
     // Recursos que ya pertenecen a Angular.
-    if (imagen.startsWith('/assets/')) return imagen;
-    if (imagen.startsWith('assets/')) return '/' + imagen;
+    if (imagen.startsWith('assets/')) return imagen;
 
     // Compatibilidad con nombres de imágenes del catálogo anterior.
-    return '/assets/bubblecookies/cookies/' + imagen;
+    return 'assets/bubblecookies/cookies/' + imagen.replace(/^\/+/, '');
   }
 
   // ESTADOS DE PEDIDOS
